@@ -2,12 +2,12 @@
     "name": "blackbox",
     "version": "1.0.0",
     "description": "FnO Trading Bot",
-    "main": "src/index.ts",
     "scripts": {
         "test": "test",
         "lint:fix": "eslint *.{js,ts,json} --fix --no-error-on-unmatched-pattern",
         "pretty": "prettier --write .",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "start": "ts-node src/index.ts"
     },
     "repository": {
         "type": "git",
