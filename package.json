@@ -1,0 +1,29 @@
+{
+  "name": "blackbox",
+  "version": "1.0.0",
+  "description": "FnO Trading Bot",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facinick/blackbox.git"
+  },
+  "keywords": [
+    "futures",
+    "options",
+    "zerodha",
+    "algo",
+    "trading"
+  ],
+  "author": "shriyans kapoor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/facinick/blackbox/issues"
+  },
+  "homepage": "https://github.com/facinick/blackbox#readme",
+  "devDependencies": {
+    "typescript": "^4.4.2"
+  }
+}
