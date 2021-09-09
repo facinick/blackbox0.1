@@ -1,29 +1,52 @@
 {
-  "name": "blackbox",
-  "version": "1.0.0",
-  "description": "FnO Trading Bot",
-  "main": "src/index.ts",
-  "scripts": {
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/facinick/blackbox.git"
-  },
-  "keywords": [
-    "futures",
-    "options",
-    "zerodha",
-    "algo",
-    "trading"
-  ],
-  "author": "shriyans kapoor",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/facinick/blackbox/issues"
-  },
-  "homepage": "https://github.com/facinick/blackbox#readme",
-  "devDependencies": {
-    "typescript": "^4.4.2"
-  }
+    "name": "blackbox",
+    "version": "1.0.0",
+    "description": "FnO Trading Bot",
+    "main": "src/index.ts",
+    "scripts": {
+        "test": "test",
+        "lint:fix": "eslint *.{js,ts,json} --fix --no-error-on-unmatched-pattern",
+        "pretty": "prettier --write .",
+        "prepare": "husky install"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/facinick/blackbox.git"
+    },
+    "keywords": [
+        "futures",
+        "options",
+        "zerodha",
+        "algo",
+        "trading"
+    ],
+    "author": "shriyans kapoor",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/facinick/blackbox/issues"
+    },
+    "homepage": "https://github.com/facinick/blackbox#readme",
+    "devDependencies": {
+        "@types/node": "^16.9.1",
+        "@typescript-eslint/eslint-plugin": "^4.31.0",
+        "@typescript-eslint/parser": "^4.31.0",
+        "eslint": "^7.32.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "husky": "^7.0.2",
+        "lint-staged": "^11.1.2",
+        "prettier": "2.4.0",
+        "ts-node": "^10.2.1",
+        "typescript": "^4.4.2"
+    },
+    "engines": {
+        "node": ">=10"
+    },
+    "lint-staged": {
+        "*.{js,ts}": [
+            "eslint --cache --fix --no-error-on-unmatched-pattern",
+            "prettier --write",
+            "bash -c tsc --noEmit"
+        ]
+    }
 }
