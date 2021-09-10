@@ -2,6 +2,7 @@
     "name": "blackbox",
     "version": "1.0.0",
     "description": "FnO Trading Bot",
+    "private": "true",
     "scripts": {
         "test": "test",
         "lint:fix": "eslint *.{js,ts,json} --fix --no-error-on-unmatched-pattern",
@@ -39,7 +40,7 @@
         "lint-staged": "^11.1.2",
         "prettier": "2.4.0",
         "ts-node": "^10.2.1",
-        "typescript": "^4.4.2"
+        "typescript": "^4.0.2"
     },
     "engines": {
         "node": ">=10"
@@ -53,6 +54,7 @@
     },
     "dependencies": {
         "colors": "^1.4.0",
-        "eventemitter3": "^4.0.7"
+        "eventemitter3": "^4.0.7",
+        "kiteconnect": "^3.2.1"
     }
 }

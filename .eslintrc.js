@@ -33,5 +33,9 @@ module.exports = {
         'prefer-arrow-callback': 'off',
         '@typescript-eslint/no-explicit-any': ['off'],
         '@typescript-eslint/explicit-module-boundary-types': ['off'],
+        '@typescript-eslint/no-unused-vars': [
+            2,
+            { vars: 'all', args: 'after-used', ignoreRestSiblings: false, varsIgnorePattern: '^_' },
+        ],
     },
 };
