@@ -1,4 +1,4 @@
-import { EquityTradingSymbolType } from '../../types/nse_eq';
+import { EquityTradingSymbolType } from '../../types/nse_index';
 import localInstruments from '../../data/instruments.json';
 import { getMonthFromIndex } from '../../utils/dateTime';
 import {
@@ -112,11 +112,16 @@ export class InstrumentStore {
         });
     };
 
-    getUnderlyingEquity = ({ equityTradingSymbol }: { equityTradingSymbol?: EquityTradingSymbolType }): Instrument => {
+    getUnderlyingEquity = ({
+        equityTradingSymbol,
+        segment,
+    }: {
+        equityTradingSymbol: EquityTradingSymbolType;
+        segment: SegmentType;
+    }): Instrument => {
         const instruments: Array<Instrument> = this.instruments.filter(instrument => {
             let select = true;
 
-            const segment: SegmentType = 'NSE';
             const exchange: ExchangeType = 'NSE';
 
             if (exchange) {

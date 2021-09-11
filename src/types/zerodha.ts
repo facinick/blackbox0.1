@@ -1,44 +1,4 @@
-import { EquityTradingSymbolType } from './nse_eq';
-
-export interface Positions {
-    net: [];
-    day: [];
-}
-
-// for tick updates via websocket
-export interface Tick {
-    tradable: boolean;
-    mode: string;
-    instrument_token: number;
-    last_price: number;
-}
-
-// for order updates via websocket
-export interface Order {
-    order_id: string;
-    exchange_order_id: string;
-    placed_by: string;
-    status: string;
-    status_message: string;
-
-    tradingsymbol: string;
-    exchange: string;
-    order_type: string;
-    transaction_type: string;
-    validity: string;
-    product: string;
-
-    average_price: number;
-    price: number;
-    quantity: number;
-    filled_quantity: number;
-    unfilled_quantity: number;
-    trigger_price: number;
-    user_id: string;
-    order_timestamp: string;
-    exchange_timestamp: string;
-    checksum: string;
-}
+import { EquityTradingSymbolType, OptionsTradingSymbolNameType } from './nse_index';
 
 export type InstrumentType = 'CE' | 'PE' | 'FUT' | 'EQ';
 
@@ -107,7 +67,8 @@ export type DateType =
     | 30
     | 31;
 
-export type OptionsTradingSymbolType = `${string}${DateType}${MonthType}${StrikeType}${InstrumentType}`;
+export type OptionsTradingSymbolType =
+    `${OptionsTradingSymbolNameType}${DateType}${MonthType}${StrikeType}${InstrumentType}`;
 
 export type TradingSymbolType = EquityTradingSymbolType | OptionsTradingSymbolType;
 
@@ -138,6 +99,10 @@ export interface Instrument {
     segment: SegmentType;
     exchange: ExchangeType;
 }
+
+// ***************************************************************
+// ************************* ZERODHA API *************************
+// ***************************************************************
 
 export interface PlaceOrder {
     variety: VarietyType;

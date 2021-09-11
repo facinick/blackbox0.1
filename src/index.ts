@@ -5,6 +5,7 @@ import { BaseTicker } from './scripts/ticker/base_ticker';
 import { PriceUpdates } from './scripts/ticker/price_updates';
 import { OrderUpdates } from './scripts/ticker/order_updates';
 import { App } from './scripts/App';
+import { InstrumentStore } from './scripts/zerodha/instrumentStore';
 
 const main = async (): Promise<void> => {
     console.log(`log: [info] starting main app`);
@@ -39,6 +40,11 @@ const main = async (): Promise<void> => {
         console.log(`log: [ticker] error initialising price/order ticker, aborting!`);
         process.exit();
     }
+
+    // load instruments, to know details of every instrument
+    await InstrumentStore.getInstance().loadInstruments({
+        from_server: false,
+    });
 
     console.log(`log: [kite] tickers are ready!`);
 

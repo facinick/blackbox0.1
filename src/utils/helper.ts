@@ -1,7 +1,8 @@
+import { ZTick, ZTicks } from './../types/ticker';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TConfig } from '../types/config';
-import { EquityTradingSymbolType } from '../types/nse_eq';
+import { OptionsTradingSymbolNameType } from '../types/nse_index';
 import { Instrument } from '../types/zerodha';
 import { DateType, InstrumentType, MonthType, OptionsTradingSymbolType, StrikeType } from '../types/zerodha';
 
@@ -24,13 +25,13 @@ export const generateOptionsTradingSymbol = ({
     expiryMonth,
     instrumentType,
 }: {
-    equityName: EquityTradingSymbolType;
+    equityName: OptionsTradingSymbolNameType;
     strike: StrikeType;
     expiryDate: DateType;
     expiryMonth: MonthType;
     instrumentType: InstrumentType;
 }): OptionsTradingSymbolType => {
-    return `${equityName as string}${expiryDate}${expiryMonth}${strike}${instrumentType}`;
+    return `${equityName}${expiryDate}${expiryMonth}${strike}${instrumentType}`;
 };
 
 export const getATMStrike = ({ price, step }: { price: number; step: number }): StrikeType =>
@@ -59,4 +60,15 @@ export const isAWithinRangeOfB = ({
     }
 
     return false;
+};
+
+export const getTickByInstrumentToken = ({
+    instrument_token,
+    ticks,
+}: {
+    instrument_token: number;
+    ticks: ZTicks;
+}): ZTick => {
+    const tick = ticks.filter(tick => tick.instrument_token === instrument_token);
+    return tick[0];
 };

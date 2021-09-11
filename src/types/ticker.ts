@@ -1,11 +1,48 @@
-export type ZTicks = Array<ZTick>;
+// ***********************************************************************************
+// ********************************** PRICE UPDATES **********************************
+// ***********************************************************************************
 
+export type ZTicks = Array<ZTick>;
 export interface ZTick {
-    tradable: boolean;
-    mode: string;
     instrument_token: number;
+    mode: string;
+    volume: number;
     last_price: number;
+    average_price: number;
+    last_quantity: number;
+    buy_quantity: number;
+    sell_quantity: number;
+    change: number;
+    last_trade_time: Date;
+    timestamp: Date;
+    oi: number;
+    oi_day_low: number;
+    oi_day_high: number;
+    ohlc: Ohlc;
+    tradable: boolean;
+    depth: Depth;
 }
+
+export interface Depth {
+    sell: Buy[];
+    buy: Buy[];
+}
+
+export interface Buy {
+    price: number;
+    orders: number;
+    quantity: number;
+}
+
+export interface Ohlc {
+    high: number;
+    close: number;
+    open: number;
+    low: number;
+}
+// ***********************************************************************************
+// ********************************** ORDER UPDATES **********************************
+// ***********************************************************************************
 
 export type ZOrderTicks = Array<ZOrderTick>;
 
@@ -15,14 +52,12 @@ export interface ZOrderTick {
     placed_by: string;
     status: string;
     status_message: string;
-
     tradingsymbol: string;
     exchange: string;
     order_type: string;
     transaction_type: string;
     validity: string;
     product: string;
-
     average_price: number;
     price: number;
     quantity: number;

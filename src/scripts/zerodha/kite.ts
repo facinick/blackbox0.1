@@ -1,14 +1,6 @@
 import { KiteConnect } from 'kiteconnect';
-// import { EquityTradingSymbolType } from '../types/nse_eq';
-import {
-    ExchangeType,
-    Instrument,
-    LTPData,
-    PlacedOrder,
-    PlaceOrder,
-    Positions,
-    // TradingSymbolType,
-} from '../../types/zerodha';
+import { ZDayNetPositions } from '../../types/positions';
+import { ExchangeType, Instrument, LTPData, PlacedOrder, PlaceOrder } from '../../types/zerodha';
 import { CalcelledOrder, ExitedOrder, OptionsTradingSymbolType, VarietyType } from '../../types/zerodha';
 import { success } from '../../utils/helper';
 class Kite {
@@ -51,9 +43,9 @@ class Kite {
         }
     };
 
-    public getPositions = async (): Promise<[Positions, any]> => {
+    public getPositions = async (): Promise<[ZDayNetPositions, any]> => {
         try {
-            const positions: Positions = await this._kc.getPositions();
+            const positions: ZDayNetPositions = await this._kc.getPositions();
             return [positions, null];
         } catch (error) {
             return [null, error];
