@@ -1,5 +1,5 @@
-import { EquityTradingSymbolType } from '../../types/nse_index';
 import localInstruments from '../../data/instruments.json';
+import localIndicesEqDerMap from '../../data/indices_eq_derivative_map.json';
 import { getMonthFromIndex } from '../../utils/dateTime';
 import {
     ExchangeType,
@@ -10,15 +10,20 @@ import {
     MonthIndexType,
     StrikeDistanceType,
     TradingSymbolType,
+    IndicesEqDerivativeMap,
+    EquityTradingSymbolType,
+    DerivativeTradingSymbolType,
 } from '../../types/zerodha';
 import { Success } from '../../utils/Logger';
-import { MonthType } from '../../types/zerodha';
+import { MonthNameType } from '../../types/zerodha';
 import { saveZerodhaInstrumentsLocal } from '../../utils/helper';
 import { Kite } from './kite';
+import { DerivativeTradingSymbolNameType, TradingSymbolNameType } from '../../types/nse_index';
 
 export class InstrumentStore {
     private static instance: InstrumentStore;
     private instruments: Array<Instrument> = [];
+    private indices_eq_der_map: Array<IndicesEqDerivativeMap> = [];
 
     public static getInstance = (): InstrumentStore => {
         if (!InstrumentStore.instance) {
@@ -27,6 +32,44 @@ export class InstrumentStore {
 
         return InstrumentStore.instance;
     };
+
+    // we need this to link index to it's derivative in instruments.json
+    loadIndicesEqDerMapping = (): void => {
+        try {
+            this.indices_eq_der_map = localIndicesEqDerMap as Array<IndicesEqDerivativeMap>;
+            //   if array is null
+            //   if array is empty
+            //   if array has first object empty
+            if (!this.indices_eq_der_map || this.indices_eq_der_map.length === 0 || !this.indices_eq_der_map[0]) {
+                console.log(`local load local index eq der map data have some issue...`);
+                throw new Error('');
+            }
+        } catch (e) {
+            console.log(`couldn't load local index eq der map data!`);
+        }
+    };
+
+    // getDerivativeInstrumentFromIndexEquitySymbol = ({
+    //     tradingSymbol,
+    // }: {
+    //     tradingSymbol: EquityTradingSymbolType;
+    // }): Instrument => {
+    //     const mapping = this.indices_eq_der_map.filter((mapping: IndicesEqDerivativeMap) => {
+    //         return mapping.underlying.tradingSymbol === tradingSymbol;
+    //     })?.[0];
+
+    //     if (mapping) {
+    //         const instrument = getLocalDerivativeInstrumentsWithFilter({
+    //             name: mapping.derivative.name,
+    //         });
+
+    //         mapping.derivative.name;
+    //     } else {
+    //         throw new Error(
+    //             `log: [error] [instrument store] no index eq-der mapping found for requested trading symbol: ${tradingSymbol}`,
+    //         );
+    //     }
+    // };
 
     loadInstruments = async ({ from_server }: { from_server: boolean }) => {
         if (from_server) {
@@ -66,18 +109,20 @@ export class InstrumentStore {
         }
     };
 
-    getInstruments = ({
+    getLocalInstrumentsWithFilter = ({
         exchange,
         segment,
         instrumentType,
-        instrumentTradingSymbol,
+        tradingSymbol,
+        name,
         strike,
         instrumentToken,
     }: {
         exchange?: ExchangeType;
         segment?: SegmentType;
         instrumentType?: InstrumentType;
-        instrumentTradingSymbol?: TradingSymbolType;
+        tradingSymbol?: TradingSymbolType;
+        name?: TradingSymbolNameType;
         strike?: StrikeType;
         instrumentToken?: string;
     }): Array<Instrument> => {
@@ -100,8 +145,12 @@ export class InstrumentStore {
                 select = select && instrument.instrument_type == instrumentType;
             }
 
-            if (instrumentTradingSymbol) {
-                select = select && instrument.tradingsymbol == instrumentTradingSymbol;
+            if (tradingSymbol) {
+                select = select && instrument.tradingSymbol == tradingSymbol;
+            }
+
+            if (name) {
+                select = select && instrument.name == name;
             }
 
             if (strike) {
@@ -112,7 +161,7 @@ export class InstrumentStore {
         });
     };
 
-    getUnderlyingEquity = ({
+    getEquityInstrumentFromItsSymbol = ({
         equityTradingSymbol,
         segment,
     }: {
@@ -133,7 +182,7 @@ export class InstrumentStore {
             }
 
             if (equityTradingSymbol) {
-                select = select && instrument.tradingsymbol === equityTradingSymbol;
+                select = select && instrument.tradingSymbol === equityTradingSymbol;
             }
 
             return select;
@@ -146,45 +195,89 @@ export class InstrumentStore {
         }
     };
 
-    getOptionsChain = ({
+    getLocalDerivativeInstrumentsWithFilter = ({
         instrumentType,
-        equityTradingSymbol,
-        expiryMonth,
+        derivativeTradingSymbol,
+        name,
+        strike,
+        instrumentToken,
     }: {
         instrumentType?: InstrumentType;
-        equityTradingSymbol: EquityTradingSymbolType;
-        expiryMonth?: MonthType;
+        derivativeTradingSymbol?: DerivativeTradingSymbolType;
+        name?: DerivativeTradingSymbolNameType;
+        strike?: StrikeType;
+        instrumentToken?: string;
     }): Array<Instrument> => {
         return this.instruments.filter(instrument => {
             let select = true;
 
-            const segment = 'NFO-OPT';
-            const exchange = 'NFO';
+            select = select && instrument.exchange == 'NFO';
 
-            if (exchange) {
-                select = select && instrument.exchange == exchange;
-            }
+            select = select && (instrument.segment == 'NFO-FUT' || instrument.segment == 'NFO-OPT');
 
-            if (segment) {
-                select = select && instrument.segment == segment;
+            if (instrumentToken) {
+                select = select && instrument.instrument_token == instrumentToken;
             }
 
             if (instrumentType) {
                 select = select && instrument.instrument_type == instrumentType;
             }
 
-            if (equityTradingSymbol) {
-                select = select && instrument.tradingsymbol.startsWith(equityTradingSymbol);
+            if (derivativeTradingSymbol) {
+                select = select && instrument.tradingSymbol == derivativeTradingSymbol;
             }
 
-            if (expiryMonth) {
-                const monthIndex = new Date(instrument.expiry).getUTCMonth() as MonthIndexType;
-                select = select && getMonthFromIndex({ index: monthIndex }) === expiryMonth;
+            if (name) {
+                select = select && instrument.name == name;
+            }
+
+            if (strike) {
+                select = select && instrument.strike == strike;
             }
 
             return select;
         });
     };
+
+    // getOptionsChain = ({
+    //     instrumentType,
+    //     equityTradingSymbol,
+    //     expiryMonth,
+    // }: {
+    //     instrumentType?: InstrumentType;
+    //     equityTradingSymbol: EquityTradingSymbolType;
+    //     expiryMonth?: MonthNameType;
+    // }): Array<Instrument> => {
+    //     return this.instruments.filter(instrument => {
+    //         let select = true;
+
+    //         const segment = 'NFO-OPT';
+    //         const exchange = 'NFO';
+
+    //         if (exchange) {
+    //             select = select && instrument.exchange == exchange;
+    //         }
+
+    //         if (segment) {
+    //             select = select && instrument.segment == segment;
+    //         }
+
+    //         if (instrumentType) {
+    //             select = select && instrument.instrument_type == instrumentType;
+    //         }
+
+    //         if (equityTradingSymbol) {
+    //             select = select && instrument.tradingsymbol.startsWith(equityTradingSymbol);
+    //         }
+
+    //         if (expiryMonth) {
+    //             const monthIndex = new Date(instrument.expiry).getUTCMonth() as MonthIndexType;
+    //             select = select && getMonthFromIndex({ index: monthIndex }) === expiryMonth;
+    //         }
+
+    //         return select;
+    //     });
+    // };
 
     getOptionsInstrumentAtStrike = ({
         equityTradingSymbol,
@@ -198,7 +291,7 @@ export class InstrumentStore {
         strike: StrikeType;
         distanceFromStrike?: StrikeDistanceType;
         equityTradingSymbol: EquityTradingSymbolType;
-        expiryMonth: MonthType;
+        expiryMonth: MonthNameType;
         step: number;
     }): Instrument => {
         const instruments = this.instruments.filter(instrument => {
@@ -212,7 +305,7 @@ export class InstrumentStore {
             select = select && instrument.instrument_type == instrumentType;
             const monthIndex = new Date(instrument.expiry).getUTCMonth() as MonthIndexType;
             select = select && getMonthFromIndex({ index: monthIndex }) === expiryMonth;
-            select = select && instrument.tradingsymbol.startsWith(equityTradingSymbol);
+            select = select && instrument.tradingSymbol.startsWith(equityTradingSymbol);
             select = select && instrument.strike == strike + step * distanceFromStrike;
 
             return select;

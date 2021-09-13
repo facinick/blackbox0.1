@@ -47,6 +47,8 @@ const main = async (): Promise<void> => {
         from_server: false,
     });
 
+    InstrumentStore.getInstance().loadIndicesEqDerMapping();
+
     console.log(`log: [kite] tickers are ready!`);
 
     new App().initialise();

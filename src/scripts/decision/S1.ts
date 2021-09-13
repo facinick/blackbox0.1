@@ -1,19 +1,19 @@
 import { SegmentType } from '../../types/zerodha';
-import { OptionsTradingSymbolNameType } from '../../types/nse_index';
+import { DerivativeTradingSymbolNameType } from '../../types/nse_index';
 import { PriceUpdates } from '../ticker/price_updates';
 import { PositionController } from '../positions/position_controller';
 import { ZTicks } from '../../types/ticker';
 import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrumentStore';
-import { EquityTradingSymbolType } from '../../types/nse_index';
+import { EquityTradingSymbolNameType } from '../../types/nse_index';
 import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
 export class S1 implements PriceUpdateReceiver, IStrategy {
-    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolType = 'NIFTY BANK';
-    UNDERLYING_FNO_SYMBOL: OptionsTradingSymbolNameType = 'BANKNIFTY';
+    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolNameType = 'NIFTY BANK';
+    UNDERLYING_FNO_SYMBOL: DerivativeTradingSymbolNameType = 'BANKNIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';
 
     equityInstrument: Instrument;
@@ -45,7 +45,7 @@ export class S1 implements PriceUpdateReceiver, IStrategy {
         this.order_manager = order_manager;
         this.position_controller = position_controller;
 
-        this.equityInstrument = InstrumentStore.getInstance().getUnderlyingEquity({
+        this.equityInstrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
             equityTradingSymbol: this.UNDERLYING_EQ_SYMBOL,
             segment: this.UNDERLYING_EQ_SEGMENT,
         });
@@ -56,13 +56,13 @@ export class S1 implements PriceUpdateReceiver, IStrategy {
         });
     }
 
-    onPriceUpdate(_subject: PriceUpdateSender, ticks: ZTicks): void {
+    onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
         const positions: ZPositions = this.position_controller.getOpenNetPositions();
         const tick = getTickByInstrumentToken({
-            ticks,
+            ticks: _ticks,
             instrument_token: Number(this.equityInstrument.instrument_token),
         });
-
+        // ----------------------
         console.log(`log: take a decision based on ${tick.last_price} and ${JSON.stringify(positions)}`);
     }
 }

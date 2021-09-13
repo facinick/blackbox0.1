@@ -38,8 +38,7 @@ export interface ZPosition {
 }
 
 export interface IPositionGreeks {
-    delta?: number;
-    iv?: number;
+    delta: number;
 }
 
 // [

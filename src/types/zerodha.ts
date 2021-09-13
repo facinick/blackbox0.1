@@ -1,4 +1,11 @@
-import { EquityTradingSymbolType, OptionsTradingSymbolNameType } from './nse_index';
+import {
+    DerivativeTradingSymbolNameType,
+    EquityTradingSymbolNameType,
+    FuturesTradingSymbolNameType,
+    OptionsTradingSymbolNameType,
+} from './nse_index';
+
+export type DerivativeType = 'FUTURES' | 'OPTIONS';
 
 export type InstrumentType = 'CE' | 'PE' | 'FUT' | 'EQ';
 
@@ -30,7 +37,19 @@ export type ExchangeType =
     // need this
     | 'NFO';
 
-export type MonthType = 'JAN' | 'FEB' | 'MAR' | 'APR' | 'MAY' | 'JUN' | 'JUL' | 'AUG' | 'SEP' | 'OCT' | 'NOV' | 'DEC';
+export type MonthNameType =
+    | 'JAN'
+    | 'FEB'
+    | 'MAR'
+    | 'APR'
+    | 'MAY'
+    | 'JUN'
+    | 'JUL'
+    | 'AUG'
+    | 'SEP'
+    | 'OCT'
+    | 'NOV'
+    | 'DEC';
 
 export type MonthIndexType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
@@ -67,10 +86,19 @@ export type DateType =
     | 30
     | 31;
 
-export type OptionsTradingSymbolType =
-    `${OptionsTradingSymbolNameType}${DateType}${MonthType}${StrikeType}${InstrumentType}`;
+export type YearType = 2021 | 2022;
 
-export type TradingSymbolType = EquityTradingSymbolType | OptionsTradingSymbolType;
+// NIFTY21SEPFUT
+export type FuturesTradingSymbolType = `${FuturesTradingSymbolNameType}${DateType}${MonthNameType}${'FUT'}`;
+
+export type OptionsTradingSymbolType = `${OptionsTradingSymbolNameType}${DateType}${MonthNameType}${StrikeType}${
+    | 'CE'
+    | 'PE'}`;
+
+export type EquityTradingSymbolType = `${EquityTradingSymbolNameType}`;
+
+export type DerivativeTradingSymbolType = OptionsTradingSymbolType | FuturesTradingSymbolType;
+export type TradingSymbolType = EquityTradingSymbolType | DerivativeTradingSymbolType;
 
 export type StrikeType = number;
 
@@ -88,7 +116,7 @@ export type OrderIDType = string;
 export interface Instrument {
     instrument_token: string;
     exchange_token: string;
-    tradingsymbol: TradingSymbolType;
+    tradingSymbol: TradingSymbolType;
     name: string;
     last_price: number;
     expiry: string;
@@ -98,6 +126,16 @@ export interface Instrument {
     instrument_type: InstrumentType;
     segment: SegmentType;
     exchange: ExchangeType;
+}
+
+export interface IndicesEqDerivativeMap {
+    underlying: {
+        tradingSymbol: EquityTradingSymbolType;
+        name: EquityTradingSymbolNameType;
+    };
+    derivative: {
+        name: DerivativeTradingSymbolNameType;
+    };
 }
 
 // ***************************************************************

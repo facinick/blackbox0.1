@@ -1,6 +1,6 @@
-import { MonthIndexType, MonthType } from './../types/zerodha';
+import { MonthIndexType, MonthNameType } from './../types/zerodha';
 
-export const getMonthFromIndex = ({ index }: { index: MonthIndexType }): MonthType => {
+export const getMonthFromIndex = ({ index }: { index: MonthIndexType }): MonthNameType => {
     switch (index) {
         case 0:
             return 'JAN';

@@ -4,8 +4,10 @@ import { ZTicks } from '../../types/ticker';
 import { ZOrderTicks } from '../../types/ticker';
 import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
-import { comparer } from '../../utils/helper';
-
+import { comparer, getDerivativeType } from '../../utils/helper';
+// import greeks from 'greeks';
+// import { DerivativeTradingSymbolType } from '../../types/zerodha';
+// import { EquityTradingSymbolType } from '../../types/nse_index';
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
     private readonly GREEKS_UPDATE_INTERVAL_MS = 10000;
     private greeksUpdaterTimer: NodeJS.Timer = null;
@@ -13,6 +15,18 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     private dayNetPositions: ZDayNetPositions = {
         day: [],
         net: [],
+    };
+
+    private positionAggregates: {
+        pnl: number;
+        delta: number;
+        updatedAt: number;
+    } = {
+        // signed
+        pnl: 0,
+        // signed
+        delta: 0,
+        updatedAt: Date.now(),
     };
 
     initialise = async (): Promise<void> => {
@@ -93,11 +107,54 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         }
     };
 
-    updateDeltaValuesInDayPositions = () => {
+    // fetch underlying price once
+    // fetch IV values for every position
+    // use above two to calculate delta value
+    updateDeltaValuesInDayPositions = async (): Promise<void> => {
+        // const UL_LTP_CACHE = new Map<EquityTradingSymbolType, number>();
+        // const POSITION_IV_CACHE = new Map<DerivativeTradingSymbolType, number>();
+
+        // reset aggr delta
+        this.positionAggregates.delta = 0;
+
         if (this.dayNetPositions?.net?.length > 0) {
             this.dayNetPositions.net = this.dayNetPositions.net.map((position: ZPosition & IPositionGreeks) => {
-                position.delta = 8;
-                position.iv = 0.18;
+                //1 check if position segment type
+                //2 >> if FUT, delta = position.quantity , return position
+                //3 >> if OPT, goto 5
+                //4 >> if EQ, return position;
+                //5 get underlying
+                //6 check if price exist in cache
+                //7 >> if yes, pick from cache
+                //8 >> if no, fetch from server
+                //9 check if iv exist in cache
+                //10 >> if yes, pick from cache
+                //11 >> if no, fetch from server
+                //12 calculate delta
+                // const underlyingPrice =
+
+                let delta = undefined;
+
+                // futures delta
+                if (getDerivativeType({ position }) === 'FUTURES') {
+                    delta = position.quantity;
+                }
+
+                // options delta
+                else if (getDerivativeType({ position }) === 'OPTIONS') {
+                    // TODO
+                }
+
+                // equity, no delta available
+                else {
+                    // this won't happen
+                    console.trace();
+                    throw new Error(`log: [instruments] [error] unimagined scenario`);
+                }
+
+                position.delta = delta;
+                this.positionAggregates.delta += delta;
+
                 return position;
             });
             console.log(`log: [positions] positions greeks updated`);

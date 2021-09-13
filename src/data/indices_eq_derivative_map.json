@@ -1,0 +1,20 @@
+[
+    {
+        "underlying": {
+            "tradingSymbol": "NIFTY BANK",
+            "name": "NIFTY BANK"
+        },
+        "derivative": {
+            "name": "BANKNIFTY"
+        }
+    },
+    {
+        "underlying": {
+            "tradingSymbol": "NIFTY 50",
+            "name": "NIFTY 50"
+        },
+        "derivative": {
+            "name": "NIFTY"
+        }
+    }
+]
