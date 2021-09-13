@@ -1,8 +1,8 @@
 import { ZTicks, ZOrderTicks } from '../../types/ticker';
 export interface PriceUpdateSender {
     // Attach an observer to the subject.
-    subscribe({ observer, ticker_id }: { observer: PriceUpdateReceiver; ticker_id: number }): void;
-    unsubscribe({ observer, ticker_id }: { observer: PriceUpdateReceiver; ticker_id: number }): void;
+    subscribe({ observer, ticker_ids }: { observer: PriceUpdateReceiver; ticker_ids: Array<number> }): void;
+    unsubscribe({ observer, ticker_ids }: { observer: PriceUpdateReceiver; ticker_ids: Array<number> }): void;
     // Notify all observers about an event.
     notifyPriceUpdate(): void;
 }

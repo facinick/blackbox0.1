@@ -1,8 +1,10 @@
-import { ZDayNetPositions, ZPositions } from '../../types/positions';
+import { PriceUpdates } from './../ticker/price_updates';
+import { ZDayNetPositions, ZPosition, ZPositions } from '../../types/positions';
 import { ZTicks } from '../../types/ticker';
 import { ZOrderTicks } from '../../types/ticker';
 import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
+import { comparer } from '../../utils/helper';
 
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
     private dayNetPositions: ZDayNetPositions = {
@@ -14,9 +16,32 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         console.log(`log: [positions] initialised positions controller`);
         await this.fetchDayNetPositions();
         console.log(`log: [positions] position controller is ready`);
-        // subscribe to all the positions tickers... not needed now!
         // fetch delta values of all the positions... from external source!
     };
+
+    updateNetSubscriptions({ dayNetPositions }: { dayNetPositions: ZDayNetPositions }): void {
+        const newNetPositions = dayNetPositions.net;
+        const oldNetPositions = this.dayNetPositions.net;
+
+        const unsubscribeList: ZPositions = oldNetPositions.filter(comparer(newNetPositions));
+        const subscribeList: ZPositions = newNetPositions.filter(comparer(oldNetPositions));
+
+        // unsubscribe to closed positions tickers
+        console.log(`log: [positions] initiating unsubscribe for these positions`);
+        console.log(unsubscribeList);
+
+        const unsubscribeListIds = unsubscribeList.map((position: ZPosition) => position.instrument_token);
+
+        PriceUpdates.getInstance().unsubscribe({ observer: this, ticker_ids: unsubscribeListIds });
+
+        // subscribe to new positions tickers
+        console.log(`log: [positions] initiating subscribe for these positions`);
+        console.log(subscribeList);
+
+        const subscribeListIds = subscribeList.map((position: ZPosition) => position.instrument_token);
+
+        PriceUpdates.getInstance().subscribe({ observer: this, ticker_ids: subscribeListIds });
+    }
 
     // update local position prices
     onPriceUpdate(_subject: PriceUpdateSender, ticks: ZTicks): void {
@@ -31,12 +56,22 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     }
 
     fetchDayNetPositions = async (): Promise<void> => {
+        console.log(`log: [positions] fetching all positions from server...`);
         const [_positions, error] = await Kite.getInstance().getPositions();
         if (error) {
             throw new Error(error);
         }
+
+        // console.log(`log: [positions] updating subscription list...`);
+        // this.updateNetSubscriptions({
+        //     dayNetPositions: _positions,
+        // });
+
+        // await wait_x_ms({ milliseconds: 2000 });
+
+        console.log(`log: [positions] updating local positions list...`);
         this.dayNetPositions = _positions;
-        console.log(`log: [positions] fetched open positions, open positions are:`);
+        console.log(`log: [positions] open positions are:`);
         console.log(this.dayNetPositions);
     };
 

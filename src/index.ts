@@ -1,7 +1,7 @@
 import ZerodhaConfig from './private/zerodha.json';
 import { Kite } from './scripts/zerodha/kite';
 import { login } from './scripts/zerodha/login';
-import { BaseTicker } from './scripts/ticker/base_ticker';
+import { BaseTickerV2 } from './scripts/ticker/base_ticker_v2';
 import { PriceUpdates } from './scripts/ticker/price_updates';
 import { OrderUpdates } from './scripts/ticker/order_updates';
 import { App } from './scripts/App';
@@ -23,13 +23,13 @@ const main = async (): Promise<void> => {
     console.log(`log: [auth] logged in!`);
 
     // init base ticker, this will be used by price and order update publishers
-    BaseTicker.getInstance().init({
+    BaseTickerV2.getInstance().init({
         api_key: ZerodhaConfig.API_KEY,
         access_token: ZerodhaConfig.ACCESS_TOKEN,
     });
 
     // connect base ticker, needs to be done in order to proceed forward
-    await BaseTicker.getInstance().connect();
+    await BaseTickerV2.getInstance().connect();
     console.log(`log: [kite] base ticker connected!`);
 
     // ready the price and order update publishers
@@ -38,6 +38,7 @@ const main = async (): Promise<void> => {
         OrderUpdates.getInstance().init();
     } catch (error) {
         console.log(`log: [ticker] error initialising price/order ticker, aborting!`);
+        console.log(error);
         process.exit();
     }
 

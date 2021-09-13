@@ -1,16 +1,17 @@
-import { SegmentType } from './../../types/zerodha';
-import { OptionsTradingSymbolNameType } from './../../types/nse_index';
-import { PriceUpdates } from './../ticker/price_updates';
-import { PositionController } from './../positions/position_controller';
+import { SegmentType } from '../../types/zerodha';
+import { OptionsTradingSymbolNameType } from '../../types/nse_index';
+import { PriceUpdates } from '../ticker/price_updates';
+import { PositionController } from '../positions/position_controller';
 import { ZTicks } from '../../types/ticker';
-import { PriceUpdateReceiver, PriceUpdateSender } from './../ticker/interface';
+import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrumentStore';
 import { EquityTradingSymbolType } from '../../types/nse_index';
 import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
-export class DecisionMaker implements PriceUpdateReceiver {
+import { IStrategy } from './interface';
+export class S1 implements PriceUpdateReceiver, IStrategy {
     UNDERLYING_EQ_SYMBOL: EquityTradingSymbolType = 'NIFTY BANK';
     UNDERLYING_FNO_SYMBOL: OptionsTradingSymbolNameType = 'BANKNIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';
@@ -51,7 +52,7 @@ export class DecisionMaker implements PriceUpdateReceiver {
 
         PriceUpdates.getInstance().subscribe({
             observer: this,
-            ticker_id: Number(this.equityInstrument.instrument_token),
+            ticker_ids: [Number(this.equityInstrument.instrument_token)],
         });
     }
 
@@ -63,6 +64,5 @@ export class DecisionMaker implements PriceUpdateReceiver {
         });
 
         console.log(`log: take a decision based on ${tick.last_price} and ${JSON.stringify(positions)}`);
-        throw new Error('Method not implemented.');
     }
 }

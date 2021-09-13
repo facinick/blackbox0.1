@@ -1,5 +1,5 @@
+import { BaseTickerV2 } from './base_ticker_v2';
 import { ZOrderTicks } from '../../types/ticker';
-import { BaseTicker } from './base_ticker';
 import { OrderUpdateReceiver, OrderUpdateSender } from './interface';
 
 export class OrderUpdates implements OrderUpdateSender {
@@ -16,10 +16,10 @@ export class OrderUpdates implements OrderUpdateSender {
     }
 
     init = (): void => {
-        if (!BaseTicker.getInstance().connected()) {
+        if (!BaseTickerV2.getInstance().connected()) {
             throw new Error('Ticker not connected!');
         }
-        BaseTicker.getInstance().onOrderUpdate(this.onOrderUpdate);
+        BaseTickerV2.getInstance().onOrderUpdate(this.onOrderUpdate);
     };
 
     subscribe({ observer }: { observer: OrderUpdateReceiver }): void {

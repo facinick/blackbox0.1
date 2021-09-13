@@ -19,7 +19,6 @@ export class OrderManager implements OrderUpdateReceiver {
     onOrderUpdate(_subject: OrderUpdateSender, orders: ZOrderTicks): void {
         console.log(`log: [order] received order updates:`);
         console.log(orders);
-        throw new Error('Method not implemented.');
     }
 
     sendOrders = async ({ orders }: { orders: IOrders }): Promise<void> => {
