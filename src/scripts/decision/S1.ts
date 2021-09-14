@@ -1,4 +1,4 @@
-import { SegmentType } from '../../types/zerodha';
+import { EquityTradingSymbolType, SegmentType } from '../../types/zerodha';
 import { DerivativeTradingSymbolNameType } from '../../types/nse_index';
 import { PriceUpdates } from '../ticker/price_updates';
 import { PositionController } from '../positions/position_controller';
@@ -6,14 +6,14 @@ import { ZTicks } from '../../types/ticker';
 import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrumentStore';
-import { EquityTradingSymbolNameType } from '../../types/nse_index';
+// import { EquityTradingSymbolNameType } from '../../types/nse_index';
 import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
 export class S1 implements PriceUpdateReceiver, IStrategy {
-    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolNameType = 'NIFTY BANK';
-    UNDERLYING_FNO_SYMBOL: DerivativeTradingSymbolNameType = 'BANKNIFTY';
+    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolType = 'NIFTY BANK';
+    UNDERLYING_FNO_SYMBOL_NAME: DerivativeTradingSymbolNameType = 'BANKNIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';
 
     equityInstrument: Instrument;

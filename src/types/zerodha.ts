@@ -116,7 +116,7 @@ export type OrderIDType = string;
 export interface Instrument {
     instrument_token: string;
     exchange_token: string;
-    tradingSymbol: TradingSymbolType;
+    tradingsymbol: TradingSymbolType;
     name: string;
     last_price: number;
     expiry: string;

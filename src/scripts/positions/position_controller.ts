@@ -90,11 +90,12 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         console.log(`log: [positions] updating local positions list...`);
         this.dayNetPositions = _positions;
         console.log(`log: [positions] open positions are:`);
-        console.log(this.dayNetPositions);
+        console.table(this.dayNetPositions.net);
     };
 
     startPositionGreeksUpdater = (): void => {
         this.stopPositionGreeksUpdater();
+        this.updateDeltaValuesInDayPositions();
         this.greeksUpdaterTimer = setInterval(() => {
             this.updateDeltaValuesInDayPositions();
         }, this.GREEKS_UPDATE_INTERVAL_MS);

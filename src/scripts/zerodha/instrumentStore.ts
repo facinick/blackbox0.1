@@ -14,7 +14,7 @@ import {
     EquityTradingSymbolType,
     DerivativeTradingSymbolType,
 } from '../../types/zerodha';
-import { Success } from '../../utils/Logger';
+// import { Success } from '../../utils/Logger';
 import { MonthNameType } from '../../types/zerodha';
 import { saveZerodhaInstrumentsLocal } from '../../utils/helper';
 import { Kite } from './kite';
@@ -77,7 +77,7 @@ export class InstrumentStore {
         }
 
         try {
-            console.log(`trying to load instruments from local...`);
+            console.log(`log: [instrument store] trying to instruments from local file`);
             this.instruments = localInstruments as Array<Instrument>;
             //   if array is null
             //   if array is empty
@@ -87,10 +87,11 @@ export class InstrumentStore {
                 throw new Error('');
             }
 
-            Success({
-                title: 'Loaded Instruments Local',
-                data: `count: ${this.instruments.length}`,
-            });
+            // Success({
+            //     title: 'Loaded Instruments Local',
+            //     data: `count: ${this.instruments.length}`,
+            // });
+            console.log(`log: [instrument store] loaded local instruments`);
         } catch (e) {
             console.log(`couldn't load local instruments... fetching from the server...`);
 
@@ -146,7 +147,7 @@ export class InstrumentStore {
             }
 
             if (tradingSymbol) {
-                select = select && instrument.tradingSymbol == tradingSymbol;
+                select = select && instrument.tradingsymbol == tradingSymbol;
             }
 
             if (name) {
@@ -161,6 +162,21 @@ export class InstrumentStore {
         });
     };
 
+    // {
+    //     "instrument_token": "260105",
+    //     "exchange_token": "1016",
+    //     "tradingsymbol": "NIFTY BANK",
+    //     "name": "NIFTY BANK",
+    //     "last_price": 0,
+    //     "expiry": "",
+    //     "strike": 0,
+    //     "tick_size": 0,
+    //     "lot_size": 0,
+    //     "instrument_type": "EQ",
+    //     "segment": "INDICES",
+    //     "exchange": "NSE"
+    //   },
+
     getEquityInstrumentFromItsSymbol = ({
         equityTradingSymbol,
         segment,
@@ -168,6 +184,8 @@ export class InstrumentStore {
         equityTradingSymbol: EquityTradingSymbolType;
         segment: SegmentType;
     }): Instrument => {
+        console.log(`looking for ${equityTradingSymbol} in ${segment}, ${this.instruments.length}`);
+
         const instruments: Array<Instrument> = this.instruments.filter(instrument => {
             let select = true;
 
@@ -182,11 +200,15 @@ export class InstrumentStore {
             }
 
             if (equityTradingSymbol) {
-                select = select && instrument.tradingSymbol === equityTradingSymbol;
+                select = select && instrument.tradingsymbol === equityTradingSymbol;
             }
+
+            // console.log(instrument.tradingsymbol);
 
             return select;
         });
+
+        console.log(instruments);
 
         if (instruments.length == 1) {
             return instruments[0];
@@ -224,7 +246,7 @@ export class InstrumentStore {
             }
 
             if (derivativeTradingSymbol) {
-                select = select && instrument.tradingSymbol == derivativeTradingSymbol;
+                select = select && instrument.tradingsymbol == derivativeTradingSymbol;
             }
 
             if (name) {
@@ -305,7 +327,7 @@ export class InstrumentStore {
             select = select && instrument.instrument_type == instrumentType;
             const monthIndex = new Date(instrument.expiry).getUTCMonth() as MonthIndexType;
             select = select && getMonthFromIndex({ index: monthIndex }) === expiryMonth;
-            select = select && instrument.tradingSymbol.startsWith(equityTradingSymbol);
+            select = select && instrument.tradingsymbol.startsWith(equityTradingSymbol);
             select = select && instrument.strike == strike + step * distanceFromStrike;
 
             return select;
