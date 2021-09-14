@@ -2,3 +2,4 @@ node_modules
 src/private
 build
 .eslintcache
+tsconfig.tsbuildinfo
