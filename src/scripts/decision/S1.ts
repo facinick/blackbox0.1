@@ -12,8 +12,8 @@ import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
 export class S1 implements PriceUpdateReceiver, IStrategy {
-    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolType = 'NIFTY BANK';
-    UNDERLYING_FNO_SYMBOL_NAME: DerivativeTradingSymbolNameType = 'BANKNIFTY';
+    UNDERLYING_EQ_SYMBOL: EquityTradingSymbolType = 'NIFTY 50';
+    UNDERLYING_FNO_SYMBOL_NAME: DerivativeTradingSymbolNameType = 'NIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';
 
     equityInstrument: Instrument;
@@ -42,18 +42,24 @@ export class S1 implements PriceUpdateReceiver, IStrategy {
         position_controller: PositionController;
         order_manager: OrderManager;
     }) {
-        this.order_manager = order_manager;
-        this.position_controller = position_controller;
+        try {
+            this.order_manager = order_manager;
+            this.position_controller = position_controller;
 
-        this.equityInstrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
-            equityTradingSymbol: this.UNDERLYING_EQ_SYMBOL,
-            segment: this.UNDERLYING_EQ_SEGMENT,
-        });
+            this.equityInstrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
+                equityTradingSymbol: this.UNDERLYING_EQ_SYMBOL,
+                segment: this.UNDERLYING_EQ_SEGMENT,
+            });
 
-        PriceUpdates.getInstance().subscribe({
-            observer: this,
-            ticker_ids: [Number(this.equityInstrument.instrument_token)],
-        });
+            PriceUpdates.getInstance().subscribe({
+                observer: this,
+                ticker_ids: [Number(this.equityInstrument.instrument_token)],
+            });
+        } catch (error) {
+            console.log(`log: [strategy] fatal error, couldn't init strategy`);
+            console.log(error);
+            process.exit();
+        }
     }
 
     onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {

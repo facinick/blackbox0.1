@@ -1,5 +1,5 @@
 //todo: make comprehensive list
-export type EquityTradingSymbolNameType = 'NIFTY BANK';
+export type EquityTradingSymbolNameType = 'NIFTY BANK' | 'NIFTY 50';
 // {
 //     "instrument_token": "260105",
 //     "exchange_token": "1016",
@@ -33,8 +33,8 @@ export type EquityTradingSymbolNameType = 'NIFTY BANK';
 // different for Indices, same as equity trading symbol name for others,
 // thats why we need a new type
 //todo: make comprehensive list
-export type OptionsTradingSymbolNameType = 'BANKNIFTY';
-export type FuturesTradingSymbolNameType = 'BANKNIFTY';
+export type OptionsTradingSymbolNameType = 'BANKNIFTY' | 'NIFTY';
+export type FuturesTradingSymbolNameType = 'BANKNIFTY' | 'NIFTY';
 export type DerivativeTradingSymbolNameType = OptionsTradingSymbolNameType | FuturesTradingSymbolNameType;
 export type TradingSymbolNameType = DerivativeTradingSymbolNameType | EquityTradingSymbolNameType;
 
