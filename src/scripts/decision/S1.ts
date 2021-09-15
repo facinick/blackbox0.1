@@ -5,7 +5,7 @@ import { PositionController } from '../positions/position_controller';
 import { ZTicks } from '../../types/ticker';
 import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
-import { InstrumentStore } from '../zerodha/instrumentStore';
+import { InstrumentStore } from '../zerodha/instrument_store';
 import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';

@@ -1,4 +1,4 @@
-import { InstrumentStore } from './../scripts/zerodha/instrumentStore';
+import { InstrumentStore } from '../scripts/zerodha/instrument_store';
 import { YearType, MonthIndexType, DateType } from './../types/zerodha';
 import { ZTick, ZTicks } from './../types/ticker';
 import { DerivativeTradingSymbolType, DerivativeNameType } from '../types/instrument';
@@ -7,7 +7,7 @@ import * as path from 'path';
 import { TConfig } from '../types/config';
 import { DerivativeType, Instrument } from '../types/zerodha';
 import { InstrumentType, MonthNameType, StrikeType } from '../types/zerodha';
-import { getMonthFromIndex } from './dateTime';
+import { getMonthFromIndex } from './date_time';
 import { ZPosition } from '../types/positions';
 
 export const success = ({ message }: { message: string }): { message: string } => {

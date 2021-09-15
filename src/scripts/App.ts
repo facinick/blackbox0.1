@@ -1,6 +1,6 @@
 import { PositionController } from './positions/position_controller';
 import { OrderManager } from './orders/order_manager';
-import { S1 } from './decision/S1';
+import { S1 } from './decision/s1';
 import { IStrategy } from './decision/interface';
 export class App {
     order_manager: OrderManager;

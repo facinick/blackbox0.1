@@ -4,8 +4,8 @@ import { login } from './scripts/zerodha/login';
 import { BaseTickerV2 } from './scripts/ticker/base_ticker_v2';
 import { PriceUpdates } from './scripts/ticker/price_updates';
 import { OrderUpdates } from './scripts/ticker/order_updates';
-import { App } from './scripts/App';
-import { InstrumentStore } from './scripts/zerodha/instrumentStore';
+import { App } from './scripts/app';
+import { InstrumentStore } from './scripts/zerodha/instrument_store';
 
 const main = async (): Promise<void> => {
     console.log(`log: [info] starting main app`);

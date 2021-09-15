@@ -7,8 +7,8 @@ import {
     TradingSymbolType,
     Ul_Der_Map_List,
 } from '../../types/instrument';
-import { ul_der_map_list } from '../../data/eq_der_map';
-import { getMonthFromIndex } from '../../utils/dateTime';
+import { ul_der_map_list } from '../../data/eq_derivative_map';
+import { getMonthFromIndex } from '../../utils/date_time';
 import {
     ExchangeType,
     Instrument,

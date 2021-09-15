@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import ZerodhaConfig from '../../private/zerodha.json';
-import { questionAsync } from '../../utils/UserInput';
+import { questionAsync } from '../../utils/user_input';
 import { saveZerodhaConfigLocal } from '../../utils/helper';
 import { Kite } from './kite';
 
