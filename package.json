@@ -1,7 +1,7 @@
 {
     "name": "blackbox",
     "version": "1.0.0",
-    "description": "FnO Trading Bot",
+    "description": "Zerodha Trading Bot",
     "private": "true",
     "scripts": {
         "test": "test",
