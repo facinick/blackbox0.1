@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import ZerodhaConfig from '../../private/zerodha.json';
-import { Error } from '../../utils/Logger';
 import { questionAsync } from '../../utils/UserInput';
 import { saveZerodhaConfigLocal } from '../../utils/helper';
 import { Kite } from './kite';
@@ -64,7 +63,7 @@ export const is_access_token_valid = async ({ access_token }: { access_token: st
 
     const [_positions, get_position_error] = await Kite.getInstance().getPositions();
     if (get_position_error) {
-        Error({ title: 'Invalid Local Access Token | getPositions failed', data: '' });
+        console.log(`log: [login] [error] get positions failed`);
         return false;
     }
 

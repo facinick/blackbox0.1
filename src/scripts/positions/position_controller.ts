@@ -6,7 +6,6 @@ import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
 import { comparer, getDerivativeType } from '../../utils/helper';
 import FEATURES from '../../settings/features';
-// import greeks from 'greeks';
 // import { DerivativeTradingSymbolType } from '../../types/zerodha';
 // import { EquityTradingSymbolType } from '../../types/nse_index';
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
