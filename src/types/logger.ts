@@ -1,0 +1,37 @@
+export const COLORS = {
+    Reset: '\x1b[0m',
+
+    FgBlack: '\x1b[30m',
+    FgRed: '\x1b[31m',
+    FgGreen: '\x1b[32m',
+    FgYellow: '\x1b[33m',
+    FgBlue: '\x1b[34m',
+    FgMagenta: '\x1b[35m',
+    FgCyan: '\x1b[36m',
+    FgWhite: '\x1b[37m',
+
+    BgBlack: '\x1b[40m',
+    BgRed: '\x1b[41m',
+    BgGreen: '\x1b[42m',
+    BgYellow: '\x1b[43m',
+    BgBlue: '\x1b[44m',
+    BgMagenta: '\x1b[45m',
+    BgCyan: '\x1b[46m',
+    BgWhite: '\x1b[47m',
+};
+
+export enum Level {
+    'DEBUG' = 'level',
+    'INFO' = 'info',
+    'ERROR' = 'error',
+    'SUCESS' = 'success',
+    'WARN' = 'warning',
+}
+
+export const ColorMap: Map<Level, string> = new Map<Level, string>([
+    [Level.DEBUG, COLORS.FgBlue],
+    [Level.INFO, COLORS.Reset],
+    [Level.ERROR, COLORS.FgRed],
+    [Level.SUCESS, COLORS.FgGreen],
+    [Level.WARN, COLORS.FgYellow],
+]);
