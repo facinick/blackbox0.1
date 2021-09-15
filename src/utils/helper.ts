@@ -1,7 +1,7 @@
-import { FuturesTradingSymbolNameType, OptionsTradingSymbolNameType } from './../types/nse_index';
 import { InstrumentStore } from './../scripts/zerodha/instrumentStore';
-import { DerivativeTradingSymbolType, YearType, MonthIndexType, DateType } from './../types/zerodha';
+import { YearType, MonthIndexType, DateType } from './../types/zerodha';
 import { ZTick, ZTicks } from './../types/ticker';
+import { DerivativeTradingSymbolType, DerivativeNameType } from '../types/instrument';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TConfig } from '../types/config';
@@ -68,7 +68,7 @@ export const getDerivativeDataFromTradingsymbol = ({
         instrumentToken?: boolean;
     };
 }): Partial<{
-    symbolName: FuturesTradingSymbolNameType | OptionsTradingSymbolNameType;
+    symbolName: DerivativeNameType | DerivativeNameType;
     expiry: {
         day: DateType;
         month: MonthNameType;
@@ -111,7 +111,7 @@ export const getDerivativeDataFromTradingsymbol = ({
             const date = new Date(future.expiry);
             return {
                 ...(data.symbolName && {
-                    symbolName: future.name as FuturesTradingSymbolNameType | OptionsTradingSymbolNameType,
+                    symbolName: future.name as DerivativeNameType | DerivativeNameType,
                 }),
                 ...(data.expiry && {
                     expiry: {
@@ -144,7 +144,7 @@ export const getDerivativeDataFromTradingsymbol = ({
             const date = new Date(future.expiry);
             return {
                 ...(data.symbolName && {
-                    symbolName: future.name as FuturesTradingSymbolNameType | OptionsTradingSymbolNameType,
+                    symbolName: future.name as DerivativeNameType | DerivativeNameType,
                 }),
                 ...(data.expiry && {
                     expiry: {
@@ -177,7 +177,7 @@ export const getDerivativeDataFromTradingsymbol = ({
             const date = new Date(future.expiry);
             return {
                 ...(data.symbolName && {
-                    symbolName: future.name as FuturesTradingSymbolNameType | OptionsTradingSymbolNameType,
+                    symbolName: future.name as DerivativeNameType | DerivativeNameType,
                 }),
                 ...(data.expiry && {
                     expiry: {
@@ -208,7 +208,7 @@ export const getDerivativeDataFromTradingsymbol = ({
 //     expiryMonth,
 //     instrumentType,
 // }: {
-//     equityName: OptionsTradingSymbolNameType;
+//     equityName: DerivativeNameType;
 //     strike: StrikeType;
 //     expiryDate: DateType;
 //     expiryMonth: MonthNameType;
@@ -251,9 +251,9 @@ export const getTickByInstrumentToken = ({
 }: {
     instrument_token: number;
     ticks: ZTicks;
-}): ZTick => {
+}): ZTick | undefined => {
     const tick = ticks.filter(tick => tick.instrument_token === instrument_token);
-    return tick[0];
+    return tick?.[0];
 };
 
 export function arrayUnique<Type>(array: Array<Type>): Array<Type> {
@@ -288,12 +288,12 @@ export function mergeArraysUnique<Type>({ array1, array2 }: { array1: Array<Type
     return a.concat(b);
 }
 
-export const getDerivativeType = ({ position }: { position: ZPosition }): DerivativeType => {
+export const getDerivativeType = ({ position }: { position: ZPosition }): DerivativeType | null => {
     if (position.tradingsymbol.endsWith('CE') || position.tradingsymbol.endsWith('PE')) {
         return 'OPTIONS';
     } else if (position.tradingsymbol.endsWith('FUT')) {
         return 'FUTURES';
     } else {
-        throw new Error('Not an option instrument');
+        return null;
     }
 };

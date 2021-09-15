@@ -1,5 +1,13 @@
 import localInstruments from '../../data/instruments.json';
-import localIndicesEqDerMap from '../../data/indices_eq_derivative_map.json';
+import {
+    NameType,
+    DerivativeNameType,
+    DerivativeTradingSymbolType,
+    EquityTradingSymbolType,
+    TradingSymbolType,
+    Ul_Der_Map_List,
+} from '../../types/instrument';
+import { ul_der_map_list } from '../../data/eq_der_map';
 import { getMonthFromIndex } from '../../utils/dateTime';
 import {
     ExchangeType,
@@ -9,21 +17,16 @@ import {
     StrikeType,
     MonthIndexType,
     StrikeDistanceType,
-    TradingSymbolType,
-    IndicesEqDerivativeMap,
-    EquityTradingSymbolType,
-    DerivativeTradingSymbolType,
 } from '../../types/zerodha';
 // import { Success } from '../../utils/Logger';
 import { MonthNameType } from '../../types/zerodha';
 import { saveZerodhaInstrumentsLocal } from '../../utils/helper';
 import { Kite } from './kite';
-import { DerivativeTradingSymbolNameType, TradingSymbolNameType } from '../../types/nse_index';
 
 export class InstrumentStore {
     private static instance: InstrumentStore;
     private instruments: Array<Instrument> = [];
-    private indices_eq_der_map: Array<IndicesEqDerivativeMap> = [];
+    private indices_eq_der_map: Ul_Der_Map_List = [];
 
     public static getInstance = (): InstrumentStore => {
         if (!InstrumentStore.instance) {
@@ -36,7 +39,7 @@ export class InstrumentStore {
     // we need this to link index to it's derivative in instruments.json
     loadIndicesEqDerMapping = (): void => {
         try {
-            this.indices_eq_der_map = localIndicesEqDerMap as Array<IndicesEqDerivativeMap>;
+            this.indices_eq_der_map = ul_der_map_list;
             //   if array is null
             //   if array is empty
             //   if array has first object empty
@@ -123,7 +126,7 @@ export class InstrumentStore {
         segment?: SegmentType;
         instrumentType?: InstrumentType;
         tradingSymbol?: TradingSymbolType;
-        name?: TradingSymbolNameType;
+        name?: NameType;
         strike?: StrikeType;
         instrumentToken?: string;
     }): Array<Instrument> => {
@@ -226,7 +229,7 @@ export class InstrumentStore {
     }: {
         instrumentType?: InstrumentType;
         derivativeTradingSymbol?: DerivativeTradingSymbolType;
-        name?: DerivativeTradingSymbolNameType;
+        name?: DerivativeNameType;
         strike?: StrikeType;
         instrumentToken?: string;
     }): Array<Instrument> => {

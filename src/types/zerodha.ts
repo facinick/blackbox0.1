@@ -1,29 +1,25 @@
-import {
-    DerivativeTradingSymbolNameType,
-    EquityTradingSymbolNameType,
-    FuturesTradingSymbolNameType,
-    OptionsTradingSymbolNameType,
-} from './nse_index';
+import { TradingSymbolType } from './instrument';
 
 export type DerivativeType = 'FUTURES' | 'OPTIONS';
 
 export type InstrumentType = 'CE' | 'PE' | 'FUT' | 'EQ';
 
+export type DerivativeSegmentType = 'NFO-OPT' | 'NFO-FUT';
+export type Eq_EquitySegmentType = 'NSE';
+export type Index_EquitySegmentType = 'INDICES';
+export type EquitySegmentType = Eq_EquitySegmentType | Index_EquitySegmentType;
 export type SegmentType =
     | 'BCD-OPT'
     | 'BCD-FUT'
     | 'BCD'
     | 'BSE'
-    | 'INDICES'
     | 'CDS-OPT'
     | 'CDS-FUT'
     | 'MCX-FUT'
     | 'MCX-OPT'
-    // need this
-    | 'NFO-OPT'
-    | 'NFO-FUT'
-    // need this
-    | 'NSE';
+    | DerivativeSegmentType
+    | Eq_EquitySegmentType
+    | Index_EquitySegmentType;
 
 export type StrikeDistanceType = -4 | -3 | -2 | -1 | 0 | 1 | 2 | -3 | 4;
 
@@ -88,18 +84,6 @@ export type DateType =
 
 export type YearType = 2021 | 2022;
 
-// NIFTY21SEPFUT
-export type FuturesTradingSymbolType = `${FuturesTradingSymbolNameType}${DateType}${MonthNameType}${'FUT'}`;
-
-export type OptionsTradingSymbolType = `${OptionsTradingSymbolNameType}${DateType}${MonthNameType}${StrikeType}${
-    | 'CE'
-    | 'PE'}`;
-
-export type EquityTradingSymbolType = `${EquityTradingSymbolNameType}`;
-
-export type DerivativeTradingSymbolType = OptionsTradingSymbolType | FuturesTradingSymbolType;
-export type TradingSymbolType = EquityTradingSymbolType | DerivativeTradingSymbolType;
-
 export type StrikeType = number;
 
 export type TransactionType = 'BUY' | 'SELL';
@@ -126,16 +110,6 @@ export interface Instrument {
     instrument_type: InstrumentType;
     segment: SegmentType;
     exchange: ExchangeType;
-}
-
-export interface IndicesEqDerivativeMap {
-    underlying: {
-        tradingSymbol: EquityTradingSymbolType;
-        name: EquityTradingSymbolNameType;
-    };
-    derivative: {
-        name: DerivativeTradingSymbolNameType;
-    };
 }
 
 // ***************************************************************

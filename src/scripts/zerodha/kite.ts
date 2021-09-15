@@ -1,7 +1,8 @@
 import { KiteConnect } from 'kiteconnect';
 import { ZDayNetPositions } from '../../types/positions';
 import { ExchangeType, Instrument, LTPData, PlacedOrder, PlaceOrder } from '../../types/zerodha';
-import { CalcelledOrder, ExitedOrder, OptionsTradingSymbolType, VarietyType } from '../../types/zerodha';
+import { CalcelledOrder, ExitedOrder, VarietyType } from '../../types/zerodha';
+import { OptionsTradingSymbolType } from '../../types/instrument';
 import { success } from '../../utils/helper';
 class Kite {
     private static instance: Kite;

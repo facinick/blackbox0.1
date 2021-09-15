@@ -5,6 +5,7 @@ import { ZOrderTicks } from '../../types/ticker';
 import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
 import { comparer, getDerivativeType } from '../../utils/helper';
+import FEATURES from '../../settings/features';
 // import greeks from 'greeks';
 // import { DerivativeTradingSymbolType } from '../../types/zerodha';
 // import { EquityTradingSymbolType } from '../../types/nse_index';
@@ -32,7 +33,11 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     initialise = async (): Promise<void> => {
         console.log(`log: [positions] initialised positions controller`);
         await this.fetchDayNetPositions();
-        this.startPositionGreeksUpdater();
+
+        if (FEATURES.OPTIONS_GREEKS) {
+            this.startPositionGreeksUpdater();
+        }
+
         console.log(`log: [positions] position controller is ready`);
         // fetch delta values of all the positions... from external source!
     };
@@ -108,6 +113,7 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         }
     };
 
+    // [UNDER CONSTRUCTION]
     // fetch underlying price once
     // fetch IV values for every position
     // use above two to calculate delta value
@@ -138,19 +144,17 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
 
                 // futures delta
                 if (getDerivativeType({ position }) === 'FUTURES') {
-                    delta = position.quantity;
+                    return position;
                 }
 
                 // options delta
                 else if (getDerivativeType({ position }) === 'OPTIONS') {
-                    // TODO
+                    delta = 0.5;
                 }
 
-                // equity, no delta available
+                // ex: product type = 'CNC' , equity stocks etc.
                 else {
-                    // this won't happen
-                    console.trace();
-                    throw new Error(`log: [instruments] [error] unimagined scenario`);
+                    return position;
                 }
 
                 position.delta = delta;
