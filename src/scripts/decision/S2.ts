@@ -1,8 +1,8 @@
-import { SegmentType } from '../../types/zerodha';
+import { SegmentType, ExchangeType, ProductType } from '../../types/zerodha';
 import { PriceUpdates } from '../ticker/price_updates';
 import { PositionController } from '../positions/position_controller';
 import { ZTicks } from '../../types/ticker';
-import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
+import { PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrument_store';
 // import { EquityTradingSymbolNameType } from '../../types/nse_index';
@@ -11,7 +11,7 @@ import { EquityTradingSymbolType } from '../../types/instrument';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
-export class S2 implements PriceUpdateReceiver, IStrategy {
+export class S2 implements IStrategy {
     UNDERLYING_EQ_SYMBOL_LIST: Array<EquityTradingSymbolType> = ['HINDUNILVR'];
     UNDERLYING_EQ_SEGMENT: SegmentType = 'NSE';
 
@@ -19,6 +19,14 @@ export class S2 implements PriceUpdateReceiver, IStrategy {
 
     position_controller: PositionController;
     order_manager: OrderManager;
+
+    positions_filter = {
+        tag: 'piggy',
+        filter: {
+            product: <ProductType>'CNC',
+            exchange: <ExchangeType>'NSE',
+        },
+    };
 
     constructor({
         position_controller,

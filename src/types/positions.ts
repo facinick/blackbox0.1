@@ -1,3 +1,6 @@
+import { TradingSymbolType } from './instrument';
+import { ExchangeType, ProductType } from './zerodha';
+
 export interface ZDayNetPositions {
     day: ZPositions;
     net: ZPositions;
@@ -18,21 +21,21 @@ export interface ZPosition {
     day_sell_price: number;
     day_sell_quantity: number;
     day_sell_value: number;
-    exchange: string;
+    exchange: ExchangeType;
     instrument_token: number;
     last_price: number;
     m2m: number;
     multiplier: number;
     overnight_quantity: number;
     pnl: number;
-    product: string;
+    product: ProductType;
     quantity: number;
     realised: number;
     sell_m2m: number;
     sell_price: number;
     sell_quantity: number;
     sell_value: number;
-    tradingsymbol: string;
+    tradingsymbol: TradingSymbolType;
     unrealised: number;
     value: number;
 }

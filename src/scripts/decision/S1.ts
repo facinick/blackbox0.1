@@ -1,16 +1,16 @@
-import { SegmentType } from '../../types/zerodha';
+import { SegmentType, ExchangeType, ProductType } from '../../types/zerodha';
 import { Indices_EquityTradingSymbolType, Indices_DerivativeNameType } from '../../types/instrument';
 import { PriceUpdates } from '../ticker/price_updates';
 import { PositionController } from '../positions/position_controller';
 import { ZTicks } from '../../types/ticker';
-import { PriceUpdateReceiver, PriceUpdateSender } from '../ticker/interface';
+import { PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrument_store';
 import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
-export class S1 implements PriceUpdateReceiver, IStrategy {
+export class S1 implements IStrategy {
     INDEX_EQ_TRADING_SYMBOL: Indices_EquityTradingSymbolType = 'NIFTY 50';
     INDEX_DERIVATIVE_NAME: Indices_DerivativeNameType = 'NIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';
@@ -33,6 +33,14 @@ export class S1 implements PriceUpdateReceiver, IStrategy {
 
     position_controller: PositionController;
     order_manager: OrderManager;
+
+    positions_filter = {
+        tag: 'delta_neutral',
+        filter: {
+            product: <ProductType>'NRML',
+            exchange: <ExchangeType>'NFO',
+        },
+    };
 
     constructor({
         position_controller,
@@ -62,7 +70,7 @@ export class S1 implements PriceUpdateReceiver, IStrategy {
     }
 
     onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
-        const positions: ZPositions = this.position_controller.getOpenNetPositions();
+        const positions: ZPositions = this.position_controller.getOpenNetPositions({ filter: this.positions_filter });
         const tick = getTickByInstrumentToken({
             ticks: _ticks,
             instrument_token: Number(this.equityInstrument.instrument_token),

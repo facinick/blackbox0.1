@@ -6,6 +6,7 @@ import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
 import { comparer, getDerivativeType } from '../../utils/helper';
 import FEATURES from '../../settings/features';
+import { IPositionFilter } from '../decision/interface';
 // import { DerivativeTradingSymbolType } from '../../types/zerodha';
 // import { EquityTradingSymbolType } from '../../types/nse_index';
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
@@ -165,6 +166,23 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         }
     };
 
+    filterPositons = ({ filter }: { filter: IPositionFilter }): ZPositions => {
+        const results = this.dayNetPositions.net.filter(position => {
+            let accept = true;
+            Object.keys(filter.filter).every(filter_key => {
+                if (position[filter_key] !== filter.filter[filter_key]) {
+                    accept = false;
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+            return accept;
+        });
+
+        return results;
+    };
+
     getOpenDayPositions = (): ZPositions => this.dayNetPositions.day;
-    getOpenNetPositions = (): ZPositions => this.dayNetPositions.net;
+    getOpenNetPositions = ({ filter }: { filter: IPositionFilter }): ZPositions => this.filterPositons({ filter });
 }
