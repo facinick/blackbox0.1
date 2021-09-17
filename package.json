@@ -10,7 +10,7 @@
         "prepare": "husky install",
         "start": "ts-node src/index.ts",
         "prisma:migrate": "npx prisma migrate dev --skip-generate",
-        "generate": "npx prisma generate"
+        "prisma:generate": "npx prisma generate"
     },
     "repository": {
         "type": "git",
