@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Transaction {
+  BUY
+  SELL
+}
+
+model PositionData {
+  id                    Int         @id @default(autoincrement())
+  quantity              Int         @default(0)
+  average_price         Int         @default(0)
+  last_action_price     Int
+  last_transaction      Transaction
+  last_action_timestamp DateTime    @updatedAt
+  last_20_days_prices   Int[]
+  last_20_days_high     Int
+  last_20_days_low      Int
+  //db relations
+  position_id           Int
+  //prisma relations
+  position              Position    @relation(fields: [position_id], references: [id])
+}
+
+model Position {
+  id               Int           @id @default(autoincrement())
+  instrument_token Int
+  tradingsymbol    String
+  //db relations
+  strategy_id      Int
+  //prisma relations
+  strategy         Strategy      @relation(fields: [strategy_id], references: [id])
+  data             PositionData?
+}
+
+model Strategy {
+  id      Int @id @default(autoincrement())
+  balance Int
+
+  //prisma relations
+  positions Position[]
+}
