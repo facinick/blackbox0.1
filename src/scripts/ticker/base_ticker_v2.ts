@@ -20,8 +20,11 @@ export class BaseTickerV2 {
         });
     };
 
-    onError(onError: (error: any) => void): void {
-        this._ticker.on('error', onError);
+    onError(_onError: (error: any) => void): void {
+        this._ticker.on('error', error => {
+            console.log(`log: [base ticker] error`);
+            _onError(error);
+        });
     }
 
     onReconnect(onReconnect: () => void): void {

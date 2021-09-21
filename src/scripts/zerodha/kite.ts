@@ -1,9 +1,11 @@
 import { KiteConnect } from 'kiteconnect';
 import { ZDayNetPositions } from '../../types/positions';
-import { ExchangeType, Instrument, LTPData, PlacedOrder, PlaceOrder } from '../../types/zerodha';
+import { ExchangeType, Instrument, LTPData, PlacedOrder } from '../../types/zerodha';
 import { CalcelledOrder, ExitedOrder, VarietyType } from '../../types/zerodha';
 import { OptionsTradingSymbolType } from '../../types/instrument';
 import { success } from '../../utils/helper';
+import { ZHoldings } from '../../types/holdings';
+import { IPlaceStockOrder, ZPlaceOrder } from '../../types/orders';
 class Kite {
     private static instance: Kite;
     private _kc: KiteConnect;
@@ -53,6 +55,15 @@ class Kite {
         }
     };
 
+    public getHoldings = async (): Promise<[ZHoldings, any]> => {
+        try {
+            const holdings: ZHoldings = await this._kc.getHoldings();
+            return [holdings, null];
+        } catch (error) {
+            return [null, error];
+        }
+    };
+
     public generateSession = async ({
         request_token,
         api_secret,
@@ -78,14 +89,14 @@ class Kite {
     };
 
     public placeOrder = async ({
-        variety = 'regular',
-        exchange = 'NFO',
+        variety,
+        exchange,
         tradingsymbol,
         transaction_type,
         // multiplier * lot
         quantity,
-        product = 'NRML',
-        order_type = 'LIMIT',
+        product,
+        order_type,
         validity,
         disclosed_quantity,
         trigger_price,
@@ -94,8 +105,8 @@ class Kite {
         trailing_stoploss,
         // multiplier * premium
         price,
-        tag = 'bot',
-    }: PlaceOrder): Promise<[PlacedOrder, any]> => {
+        tag,
+    }: ZPlaceOrder): Promise<[PlacedOrder, any]> => {
         try {
             const placed_order: PlacedOrder = await this._kc.placeOrder(variety, {
                 exchange,
@@ -118,6 +129,35 @@ class Kite {
         } catch (error) {
             return [null, error];
         }
+    };
+
+    public placeStockOrder = async ({
+        tradingsymbol,
+        transaction_type,
+        // multiplier * lot
+        quantity = 1,
+        tag,
+    }: // multiplier * premium
+    IPlaceStockOrder): Promise<[PlacedOrder, any]> => {
+        return this.placeOrder({
+            variety: 'regular',
+            exchange: 'NSE',
+            tradingsymbol,
+            transaction_type,
+            // multiplier * lot
+            quantity,
+            product: 'CNC',
+            order_type: 'LIMIT',
+            validity: 'DAY',
+            disclosed_quantity: undefined,
+            trigger_price: undefined,
+            squareoff: undefined,
+            stoploss: undefined,
+            trailing_stoploss: undefined,
+            // multiplier * premium
+            price: undefined,
+            tag,
+        });
     };
 
     public cancelOrder = async ({

@@ -1,22 +1,24 @@
 import { PositionController } from './positions/position_controller';
 import { OrderManager } from './orders/order_manager';
-import { S1 } from './decision/s1';
+import { S2 } from './decision/s2';
 import { IStrategy } from './decision/interface';
 export class App {
-    order_manager: OrderManager;
-    position_controller: PositionController;
-    decision_maker: IStrategy;
+    orderManager: OrderManager;
+    positionController: PositionController;
+    decisionMaker: IStrategy;
 
     initialise = async (): Promise<void> => {
-        this.order_manager = new OrderManager();
-        this.order_manager.initialise();
+        this.orderManager = new OrderManager();
+        this.orderManager.initialise();
 
-        this.position_controller = new PositionController();
-        await this.position_controller.initialise();
+        this.positionController = new PositionController();
+        await this.positionController.initialise();
 
-        this.decision_maker = new S1({
-            position_controller: this.position_controller,
-            order_manager: this.order_manager,
+        this.decisionMaker = new S2({
+            positionController: this.positionController,
+            orderManager: this.orderManager,
         });
+
+        await this.decisionMaker.initialise();
     };
 }

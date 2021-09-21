@@ -11,7 +11,8 @@ export interface IPositionFilter {
 }
 
 export interface IStrategy extends PriceUpdateReceiver {
-    position_controller: PositionController;
-    order_manager: OrderManager;
+    positionController: PositionController;
+    orderManager: OrderManager;
     positions_filter: IPositionFilter;
+    initialise: () => Promise<void> | void;
 }

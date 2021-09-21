@@ -187,8 +187,6 @@ export class InstrumentStore {
         equityTradingSymbol: EquityTradingSymbolType;
         segment: SegmentType;
     }): Instrument => {
-        console.log(`looking for ${equityTradingSymbol} in ${segment}, ${this.instruments.length}`);
-
         const instruments: Array<Instrument> = this.instruments.filter(instrument => {
             let select = true;
 

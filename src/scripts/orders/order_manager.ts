@@ -1,4 +1,4 @@
-import { IOrders } from './../../types/orders';
+import { IPlaceStockOrder } from './../../types/orders';
 import { OrderUpdates } from './../ticker/order_updates';
 import { ZOrderTicks } from '../../types/ticker';
 import { OrderUpdateReceiver, OrderUpdateSender } from './../ticker/interface';
@@ -21,7 +21,7 @@ export class OrderManager implements OrderUpdateReceiver {
         console.log(orders);
     }
 
-    sendOrders = async ({ orders }: { orders: IOrders }): Promise<void> => {
+    sendOrders = async ({ orders }: { orders: Array<IPlaceStockOrder> }): Promise<void> => {
         console.log(`log: [order] send orders:`);
         console.log(orders);
     };

@@ -13,39 +13,26 @@ generator client {
 enum Transaction {
   BUY
   SELL
+  INIT
 }
 
-model PositionData {
+model Stock {
   id                    Int         @id @default(autoincrement())
+  tradingsymbol         String      @unique
   quantity              Int         @default(0)
-  average_price         Int         @default(0)
-  last_action_price     Int
-  last_transaction      Transaction
+  average_price         Float       @default(0)
+  last_action_price     Float       @default(0)
+  last_transaction      Transaction @default(INIT)
   last_action_timestamp DateTime    @updatedAt
-  last_20_days_prices   Int[]
-  last_20_days_high     Int
-  last_20_days_low      Int
-  //db relations
-  position_id           Int
-  //prisma relations
-  position              Position    @relation(fields: [position_id], references: [id])
+  pnl                   Float       @default(0)
+  // foreign key
+  piggyBankId           Int         @default(1)
+  // prisma internal relation
+  PiggyBank             PiggyBank   @relation(fields: [piggyBankId], references: [id])
 }
 
-model Position {
-  id               Int           @id @default(autoincrement())
-  instrument_token Int
-  tradingsymbol    String
-  //db relations
-  strategy_id      Int
-  //prisma relations
-  strategy         Strategy      @relation(fields: [strategy_id], references: [id])
-  data             PositionData?
-}
-
-model Strategy {
-  id      Int @id @default(autoincrement())
-  balance Int
-
-  //prisma relations
-  positions Position[]
+model PiggyBank {
+  id      Int     @id @default(1)
+  balance Float
+  stocks  Stock[]
 }

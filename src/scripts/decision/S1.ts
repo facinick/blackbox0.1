@@ -31,8 +31,8 @@ export class S1 implements IStrategy {
     //     "exchange": "NSE"
     //   },
 
-    position_controller: PositionController;
-    order_manager: OrderManager;
+    positionController: PositionController;
+    orderManager: OrderManager;
 
     positions_filter = {
         tag: 'delta_neutral',
@@ -43,16 +43,18 @@ export class S1 implements IStrategy {
     };
 
     constructor({
-        position_controller,
-        order_manager,
+        positionController,
+        orderManager,
     }: {
-        position_controller: PositionController;
-        order_manager: OrderManager;
+        positionController: PositionController;
+        orderManager: OrderManager;
     }) {
-        try {
-            this.order_manager = order_manager;
-            this.position_controller = position_controller;
+        this.orderManager = orderManager;
+        this.positionController = positionController;
+    }
 
+    initialise = (): Promise<void> | void => {
+        try {
             this.equityInstrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
                 equityTradingSymbol: this.INDEX_EQ_TRADING_SYMBOL,
                 segment: this.UNDERLYING_EQ_SEGMENT,
@@ -67,10 +69,10 @@ export class S1 implements IStrategy {
             console.log(error);
             process.exit();
         }
-    }
+    };
 
     onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
-        const positions: ZPositions = this.position_controller.getOpenNetPositions({ filter: this.positions_filter });
+        const positions: ZPositions = this.positionController.getOpenNetPositions({ filter: this.positions_filter });
         const tick = getTickByInstrumentToken({
             ticks: _ticks,
             instrument_token: Number(this.equityInstrument.instrument_token),

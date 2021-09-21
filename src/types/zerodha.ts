@@ -115,25 +115,6 @@ export interface Instrument {
 // ***************************************************************
 // ************************* ZERODHA API *************************
 // ***************************************************************
-
-export interface PlaceOrder {
-    variety: VarietyType;
-    exchange: ExchangeType;
-    tradingsymbol: TradingSymbolType;
-    transaction_type: TransactionType;
-    quantity: number;
-    product: ProductType;
-    order_type: OrderType;
-    validity?: ValidityType;
-    disclosed_quantity?: number;
-    trigger_price?: number;
-    squareoff?: number;
-    stoploss?: number;
-    trailing_stoploss?: number;
-    price?: number;
-    tag: string;
-}
-
 export interface PlacedOrder {
     order_id: OrderIDType;
 }

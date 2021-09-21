@@ -7,6 +7,7 @@ import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdat
 import { comparer, getDerivativeType } from '../../utils/helper';
 import FEATURES from '../../settings/features';
 import { IPositionFilter } from '../decision/interface';
+import { ZHoldings } from '../../types/holdings';
 // import { DerivativeTradingSymbolType } from '../../types/zerodha';
 // import { EquityTradingSymbolType } from '../../types/nse_index';
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
@@ -17,6 +18,8 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         day: [],
         net: [],
     };
+
+    private holdings: ZHoldings = [];
 
     private positionAggregates: {
         pnl: number;
@@ -32,7 +35,7 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
 
     initialise = async (): Promise<void> => {
         console.log(`log: [positions] initialised positions controller`);
-        await this.fetchDayNetPositions();
+        await this.fetchDayNetPositionsAndHoldings();
 
         if (FEATURES.OPTIONS_GREEKS) {
             this.startPositionGreeksUpdater();
@@ -73,16 +76,23 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     }
 
     // update local positions
+    // update db? which db? what?
     onOrderUpdate(_subject: OrderUpdateSender, orders: ZOrderTicks): void {
         console.log(`log: [positions] orders updated...`);
         console.log(orders);
     }
 
-    fetchDayNetPositions = async (): Promise<void> => {
+    fetchDayNetPositionsAndHoldings = async (): Promise<void> => {
         console.log(`log: [positions] fetching all positions from server...`);
-        const [_positions, error] = await Kite.getInstance().getPositions();
-        if (error) {
-            throw new Error(error);
+        const [_positions, get_positions_error] = await Kite.getInstance().getPositions();
+        if (get_positions_error) {
+            throw new Error(get_positions_error);
+        }
+
+        console.log(`log: [positions] fetching all holdings from server...`);
+        const [_holdingss, get_holdings_errorr] = await Kite.getInstance().getHoldings();
+        if (get_holdings_errorr) {
+            throw new Error(get_holdings_errorr);
         }
 
         // console.log(`log: [positions] updating subscription list...`);
@@ -95,7 +105,12 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         console.log(`log: [positions] updating local positions list...`);
         this.dayNetPositions = _positions;
         console.log(`log: [positions] open positions are:`);
-        console.table(this.dayNetPositions.net);
+        console.log(this.dayNetPositions.net);
+
+        console.log(`log: [positions] updating local holdings list...`);
+        this.holdings = _holdingss;
+        console.log(`log: [positions] holdingss are:`);
+        console.log(this.holdings);
     };
 
     startPositionGreeksUpdater = (): void => {
@@ -166,7 +181,7 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         }
     };
 
-    filterPositons = ({ filter }: { filter: IPositionFilter }): ZPositions => {
+    filterNetOpenPositions = ({ filter }: { filter: IPositionFilter }): ZPositions => {
         const results = this.dayNetPositions.net.filter(position => {
             let accept = true;
             Object.keys(filter.filter).every(filter_key => {
@@ -183,6 +198,7 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         return results;
     };
 
-    getOpenDayPositions = (): ZPositions => this.dayNetPositions.day;
-    getOpenNetPositions = ({ filter }: { filter: IPositionFilter }): ZPositions => this.filterPositons({ filter });
+    getOpenNetPositions = ({ filter }: { filter: IPositionFilter }): ZPositions =>
+        this.filterNetOpenPositions({ filter });
+    getHoldings = (): ZHoldings => this.holdings;
 }

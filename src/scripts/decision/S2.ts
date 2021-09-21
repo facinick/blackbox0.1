@@ -6,19 +6,21 @@ import { PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrument_store';
 // import { EquityTradingSymbolNameType } from '../../types/nse_index';
-import { EquityTradingSymbolType } from '../../types/instrument';
+import { Eq_EquityTradingSymbolType } from '../../types/instrument';
 // import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
-export class S2 implements IStrategy {
-    UNDERLYING_EQ_SYMBOL_LIST: Array<EquityTradingSymbolType> = ['HINDUNILVR'];
-    UNDERLYING_EQ_SEGMENT: SegmentType = 'NSE';
+import { Stock } from '@prisma/client';
+import { DB } from '../../db/prisma';
+import { throttle } from 'throttle-typescript';
+import { IPlaceStockOrder } from '../../types/orders';
 
+export class S2 implements IStrategy {
     equityInstruments: Array<Instrument> = [];
 
-    position_controller: PositionController;
-    order_manager: OrderManager;
+    positionController: PositionController;
+    orderManager: OrderManager;
 
     positions_filter = {
         tag: 'piggy',
@@ -28,29 +30,39 @@ export class S2 implements IStrategy {
         },
     };
 
+    stocks: Array<Stock> = [];
+
+    throttledCheckForOrders: any;
+
     constructor({
-        position_controller,
-        order_manager,
+        positionController,
+        orderManager,
     }: {
-        position_controller: PositionController;
-        order_manager: OrderManager;
+        positionController: PositionController;
+        orderManager: OrderManager;
     }) {
+        this.orderManager = orderManager;
+        this.positionController = positionController;
+    }
+
+    initialise = async (): Promise<void> => {
         try {
-            this.order_manager = order_manager;
-            this.position_controller = position_controller;
+            // load stocks from database
+            this.stocks = await DB.getInstance().getStocks();
 
-            const subscribe_to_tokens = [];
-
-            this.UNDERLYING_EQ_SYMBOL_LIST.forEach((equityTradingSymbol: EquityTradingSymbolType) => {
+            // collect instrument ids of all the stocks
+            const subscribe_to_tokens: Array<number> = [];
+            this.stocks.forEach((stock: Stock) => {
                 const instrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
-                    equityTradingSymbol,
-                    segment: this.UNDERLYING_EQ_SEGMENT,
+                    equityTradingSymbol: <Eq_EquityTradingSymbolType>stock.tradingsymbol,
+                    segment: <SegmentType>'NSE',
                 });
 
                 this.equityInstruments.push(instrument);
-                subscribe_to_tokens.push(instrument.tradingsymbol);
+                subscribe_to_tokens.push(Number(instrument.instrument_token));
             });
 
+            // subscribe for their price updates
             PriceUpdates.getInstance().subscribe({
                 observer: this,
                 ticker_ids: subscribe_to_tokens,
@@ -60,18 +72,65 @@ export class S2 implements IStrategy {
             console.log(error);
             process.exit();
         }
-    }
+    };
+
+    updateStocksFromDB = async () => {
+        this.stocks = await DB.getInstance().getStocks();
+    };
+
+    updateStocksToDB = async () => {
+        this.stocks = await DB.getInstance().getStocks();
+    };
 
     onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
-        // const positions: ZPositions = this.position_controller.getOpenNetPositions();
+        if (!this.throttledCheckForOrders) {
+            this.throttledCheckForOrders = throttle(this.checkForOrders, 5000);
+        }
+        this.throttledCheckForOrders(_subject, _ticks);
+    }
+
+    checkForOrders(_subject: PriceUpdateSender, _ticks: ZTicks): void {
+        const orders: Array<IPlaceStockOrder> = [];
+
+        console.log(`checking order conditions...`);
 
         this.equityInstruments.forEach((equityInstrument: Instrument) => {
+            // get data of tradingsymbol from db
+            const data = this.stocks.find(stock => stock.tradingsymbol === equityInstrument.tradingsymbol);
+
+            if (!data) {
+                return;
+            }
+
+            // get price of tradingsymbol from db
             const tick = getTickByInstrumentToken({
                 ticks: _ticks,
                 instrument_token: Number(equityInstrument.instrument_token),
             });
 
-            console.log(`log: [strategy] eq: ${equityInstrument.tradingsymbol} price: ${tick.last_price}`);
+            console.log(`old: ${tick.last_price} => new: ${data.last_action_price}`);
+
+            if (tick.last_price < data.last_action_price * 0.99) {
+                console.log(`price dooped 1%, buy...`);
+                orders.push({
+                    tradingsymbol: equityInstrument.tradingsymbol,
+                    transaction_type: 'BUY',
+                    quantity: 1,
+                    tag: this.positions_filter.tag,
+                });
+            } else if (tick.last_price > data.last_action_price * 1.01) {
+                console.log(`price jumped 1%, sell...`);
+                orders.push({
+                    tradingsymbol: equityInstrument.tradingsymbol,
+                    transaction_type: 'SELL',
+                    quantity: 1,
+                    tag: this.positions_filter.tag,
+                });
+            }
         });
+
+        if (orders) {
+            this.orderManager.sendOrders({ orders });
+        }
     }
 }

@@ -9,8 +9,10 @@
         "pretty": "prettier --write .",
         "prepare": "husky install",
         "start": "ts-node src/index.ts",
-        "prisma:migrate": "npx prisma migrate dev --skip-generate",
-        "prisma:generate": "npx prisma generate"
+        "m": "npx prisma migrate dev --skip-generate",
+        "g": "npx prisma generate",
+        "s": "npx prisma studio",
+        "setup": "npm install && npm run g"
     },
     "repository": {
         "type": "git",
@@ -30,7 +32,6 @@
     },
     "homepage": "https://github.com/facinick/blackbox#readme",
     "devDependencies": {
-        "@types/colors": "^1.2.1",
         "@types/eventemitter3": "^2.0.2",
         "@types/node": "^16.9.1",
         "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -61,6 +62,7 @@
         "kiteconnect": "^3.2.1",
         "lodash.difference": "^4.5.0",
         "lodash.intersection": "^4.4.0",
-        "lodash.union": "^4.6.0"
+        "lodash.union": "^4.6.0",
+        "throttle-typescript": "^1.1.0"
     }
 }
