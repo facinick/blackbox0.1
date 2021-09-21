@@ -21,4 +21,9 @@ export interface ZPlaceOrder {
 
 export type ZPlaceOrders = Array<ZPlaceOrder>;
 
-export type IPlaceStockOrder = Pick<ZPlaceOrder, 'tradingsymbol' | 'transaction_type' | 'quantity' | 'tag'>;
+export type ZPlaceStockOrder = Pick<ZPlaceOrder, 'tradingsymbol' | 'transaction_type' | 'quantity' | 'tag'>;
+interface OrderFunctionType {
+    _function: 'DAY_STOCK';
+}
+
+export type IPlaceStockOrder = ZPlaceStockOrder & OrderFunctionType;

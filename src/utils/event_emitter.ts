@@ -19,8 +19,8 @@ class EventEmitter {
         this.eventEmitter.once(event, fn, context);
     }
 
-    public emit(event: string, args: any[]): void {
-        this.eventEmitter.emit(event, args);
+    public emit(event: string, data?: any): void {
+        this.eventEmitter.emit(event, data);
     }
 
     public eventNames(): Array<string | symbol> {

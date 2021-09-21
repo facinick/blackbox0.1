@@ -9,6 +9,7 @@
         "pretty": "prettier --write .",
         "prepare": "husky install",
         "start": "ts-node src/index.ts",
+        "build": "tsc src/index.ts",
         "m": "npx prisma migrate dev --skip-generate",
         "g": "npx prisma generate",
         "s": "npx prisma studio",

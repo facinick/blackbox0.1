@@ -5,7 +5,7 @@ import { CalcelledOrder, ExitedOrder, VarietyType } from '../../types/zerodha';
 import { OptionsTradingSymbolType } from '../../types/instrument';
 import { success } from '../../utils/helper';
 import { ZHoldings } from '../../types/holdings';
-import { IPlaceStockOrder, ZPlaceOrder } from '../../types/orders';
+import { ZPlaceStockOrder, ZPlaceOrder } from '../../types/orders';
 class Kite {
     private static instance: Kite;
     private _kc: KiteConnect;
@@ -138,7 +138,7 @@ class Kite {
         quantity = 1,
         tag,
     }: // multiplier * premium
-    IPlaceStockOrder): Promise<[PlacedOrder, any]> => {
+    ZPlaceStockOrder): Promise<[PlacedOrder, any]> => {
         return this.placeOrder({
             variety: 'regular',
             exchange: 'NSE',

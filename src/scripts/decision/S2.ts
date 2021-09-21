@@ -5,9 +5,7 @@ import { ZTicks } from '../../types/ticker';
 import { PriceUpdateSender } from '../ticker/interface';
 import { OrderManager } from '../orders/order_manager';
 import { InstrumentStore } from '../zerodha/instrument_store';
-// import { EquityTradingSymbolNameType } from '../../types/nse_index';
 import { Eq_EquityTradingSymbolType } from '../../types/instrument';
-// import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
@@ -43,7 +41,19 @@ export class S2 implements IStrategy {
     }) {
         this.orderManager = orderManager;
         this.positionController = positionController;
+
+        // add order manager listeners
+        this.orderManager.on(OrderManager.EVENT.started, this.onOrderExecutionStarted);
+        this.orderManager.on(OrderManager.EVENT.completed, this.onOrderExecutionCompleted);
     }
+
+    onOrderExecutionStarted = () => {
+        this.pause();
+    };
+
+    onOrderExecutionCompleted = () => {
+        this.resume();
+    };
 
     initialise = async (): Promise<void> => {
         try {
@@ -86,7 +96,9 @@ export class S2 implements IStrategy {
         if (!this.throttledCheckForOrders) {
             this.throttledCheckForOrders = throttle(this.checkForOrders, 5000);
         }
-        this.throttledCheckForOrders(_subject, _ticks);
+        if (global.pause === false) {
+            this.throttledCheckForOrders(_subject, _ticks);
+        }
     }
 
     checkForOrders(_subject: PriceUpdateSender, _ticks: ZTicks): void {
@@ -97,11 +109,6 @@ export class S2 implements IStrategy {
         this.equityInstruments.forEach((equityInstrument: Instrument) => {
             // get data of tradingsymbol from db
             const data = this.stocks.find(stock => stock.tradingsymbol === equityInstrument.tradingsymbol);
-
-            if (!data) {
-                return;
-            }
-
             // get price of tradingsymbol from db
             const tick = getTickByInstrumentToken({
                 ticks: _ticks,
@@ -110,6 +117,7 @@ export class S2 implements IStrategy {
 
             console.log(`old: ${tick.last_price} => new: ${data.last_action_price}`);
 
+            //decision making is done here
             if (tick.last_price < data.last_action_price * 0.99) {
                 console.log(`price dooped 1%, buy...`);
                 orders.push({
@@ -117,6 +125,7 @@ export class S2 implements IStrategy {
                     transaction_type: 'BUY',
                     quantity: 1,
                     tag: this.positions_filter.tag,
+                    _function: 'DAY_STOCK',
                 });
             } else if (tick.last_price > data.last_action_price * 1.01) {
                 console.log(`price jumped 1%, sell...`);
@@ -125,6 +134,7 @@ export class S2 implements IStrategy {
                     transaction_type: 'SELL',
                     quantity: 1,
                     tag: this.positions_filter.tag,
+                    _function: 'DAY_STOCK',
                 });
             }
         });
@@ -133,4 +143,14 @@ export class S2 implements IStrategy {
             this.orderManager.sendOrders({ orders });
         }
     }
+
+    pause = (): void => {
+        console.log(`log: [strategy] pausing strategy...`);
+        global.pause = true;
+    };
+
+    resume = (): void => {
+        console.log(`log: [strategy] resuming strategy...`);
+        global.pause = false;
+    };
 }
