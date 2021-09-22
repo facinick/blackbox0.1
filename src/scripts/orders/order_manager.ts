@@ -40,8 +40,10 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
     beginOrderExecution = async (): Promise<void> => {
         this.emit(OrderManager.EVENT.started);
 
+        console.log(`log: [order] begin order execution`);
         for (let index = 0; index < this._pending_orders.length; index++) {
             const order = this._pending_orders[index];
+            console.log(order);
             if (order._function === 'DAY_STOCK') {
                 console.log(`log: [order manager] sending order`);
                 console.log(order);
