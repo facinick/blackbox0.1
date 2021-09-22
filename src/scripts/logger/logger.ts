@@ -36,11 +36,15 @@ export class Logger {
         }
 
         if (data !== undefined) {
-            console.log(data);
+            this.data({ data });
         }
         if (trace) {
             console.trace();
         }
+    };
+
+    static data = ({ data }: { data: any }): void => {
+        console.log(data);
     };
 
     static info = ({
@@ -141,9 +145,5 @@ export class Logger {
             className,
             level: Level.SUCCESS,
         });
-    };
-
-    static data = ({ data }: { data: any }): void => {
-        console.log(data);
     };
 }

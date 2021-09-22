@@ -4,6 +4,7 @@ import { OrderUpdateReceiver, OrderUpdateSender } from './../ticker/interface';
 import { EventEmitter } from '../../utils/event_emitter';
 import { Kite } from '../zerodha/kite';
 import { ZOrderTick } from '../../types/ticker';
+// import { Logger } from '../'
 
 export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
     static readonly EVENT = {
