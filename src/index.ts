@@ -66,7 +66,7 @@ const main = async (): Promise<void> => {
 
     InstrumentStore.getInstance().loadIndicesEqDerMapping();
 
-    Logger.success({
+    Logger.info({
         message: `tickers are ready!`,
         className: 'main',
     });

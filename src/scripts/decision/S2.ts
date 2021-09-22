@@ -13,7 +13,7 @@ import { Stock } from '@prisma/client';
 import { DB } from '../../db/prisma';
 import { throttle } from 'throttle-typescript';
 import { IPlaceStockOrder } from '../../types/orders';
-
+import { Logger } from '../logger/logger';
 export class S2 implements IStrategy {
     equityInstruments: Array<Instrument> = [];
 
@@ -47,7 +47,7 @@ export class S2 implements IStrategy {
 
         // add order manager listeners
         // this.orderManager.on(OrderManager.EVENT.OMInit, this.onOrderExecutionInit);
-        this.orderManager.on(OrderManager.EVENT.OMStarted, this.onOrderExecutionStarted);
+        // this.orderManager.on(OrderManager.EVENT.OMStarted, this.onOrderExecutionStarted);
         // this.orderManager.on(OrderManager.EVENT.OMPlaced, this.onOrderExecutionPlaced);
         this.orderManager.on(OrderManager.EVENT.OMCompleted, this.onOrderExecutionCompleted);
         // order manager order status listener
@@ -62,27 +62,20 @@ export class S2 implements IStrategy {
             this.subscribeStocksLoadedFromDB();
             this.resume();
         } catch (error) {
-            console.log(`log: [strategy] fatal error, couldn't init strategy`);
-            console.log(error);
+            Logger.error({
+                message: `fatal error, couldn't init strategy`,
+                className: this.constructor.name,
+                data: error,
+            });
             process.exit();
         }
     };
 
-    // onOrderExecutionInit = () => {
-    //     console.log(`log: [strategy] order execution init received`);
-    //     this.pause();
-    // };
-
-    onOrderExecutionStarted = () => {
-        console.log(`log: [strategy] order execution started received`);
-    };
-
-    // onOrderExecutionPlaced = () => {
-    //     console.log(`log: [strategy] order execution placed received`);
-    // };
-
     onOrderExecutionCompleted = () => {
-        console.log(`log: [strategy] order ended started received`);
+        Logger.info({
+            message: `order execution completed`,
+            className: this.constructor.name,
+        });
         this.resume();
     };
 
@@ -101,14 +94,20 @@ export class S2 implements IStrategy {
             },
         });
 
-        console.log(`log: [strategy] database updated!`);
+        Logger.info({
+            message: `database updated!`,
+            className: this.constructor.name,
+        });
         await this.loadStocksFromDB();
         this.resume();
     };
 
     loadStocksFromDB = async (): Promise<void> => {
         this.stocks = await DB.getInstance().getStocks();
-        console.log(`log: [strategy] database loaded!`);
+        Logger.info({
+            message: `database loaded!`,
+            className: this.constructor.name,
+        });
         return;
     };
 
@@ -149,7 +148,10 @@ export class S2 implements IStrategy {
     checkForOrders(_subject: PriceUpdateSender, _ticks: ZTicks): void {
         const orders: Array<IPlaceStockOrder> = [];
 
-        console.log(`log: [strategy] checking order conditions...`);
+        Logger.info({
+            message: `checking order conditions...`,
+            className: this.constructor.name,
+        });
 
         this.equityInstruments.forEach((equityInstrument: Instrument) => {
             // get data of tradingsymbol from db
@@ -161,19 +163,27 @@ export class S2 implements IStrategy {
             });
 
             if (!tick || !data) {
-                console.log(`log: [strategy] error while checking condition, tick or its data is not defined`);
+                Logger.warn({
+                    message: `error while checking condition, tick or its data is not defined`,
+                    className: this.constructor.name,
+                });
                 return;
             }
 
-            console.log(
-                `log: [strategy] ${equityInstrument.tradingsymbol}: ${(
-                    ((tick.last_price - data.last_action_price) / data.last_action_price) *
-                    100
-                ).toFixed(2)}%`,
+            const deltaPercentage = Number(
+                (((tick.last_price - data.last_action_price) / data.last_action_price) * 100).toFixed(2),
             );
 
+            Logger.debug({
+                message: `${equityInstrument.tradingsymbol}: ${deltaPercentage}`,
+                className: this.constructor.name,
+            });
+
             if (tick.last_price <= data.last_action_price * 0.97) {
-                console.log(`log: [strategy] price dooped 3%, buy...`);
+                Logger.info({
+                    message: `price dooped 3%, buy...`,
+                    className: this.constructor.name,
+                });
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'BUY',
@@ -183,7 +193,10 @@ export class S2 implements IStrategy {
                     _function: 'DAY_STOCK',
                 });
             } else if (tick.last_price >= data.last_action_price * 1.03 && data.quantity >= 1) {
-                console.log(`log: [strategy] price jumped 3%, sell...`);
+                Logger.info({
+                    message: `price jumped 3%, sell...`,
+                    className: this.constructor.name,
+                });
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'SELL',
@@ -202,12 +215,18 @@ export class S2 implements IStrategy {
     }
 
     pause = (): void => {
-        console.log(`log: [strategy] pausing strategy...`);
+        Logger.warn({
+            message: `pausing strategy...`,
+            className: this.constructor.name,
+        });
         global.pause = true;
     };
 
     resume = (): void => {
-        console.log(`log: [strategy] resuming strategy...`);
+        Logger.warn({
+            message: `resuming strategy....`,
+            className: this.constructor.name,
+        });
         global.pause = false;
     };
 }

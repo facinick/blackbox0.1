@@ -4,7 +4,7 @@ import { OrderUpdateReceiver, OrderUpdateSender } from './../ticker/interface';
 import { EventEmitter } from '../../utils/event_emitter';
 import { Kite } from '../zerodha/kite';
 import { ZOrderTick } from '../../types/ticker';
-// import { Logger } from '../'
+import { Logger } from '../logger/logger';
 
 export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
     static readonly EVENT = {
@@ -32,7 +32,10 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
 
     initialise = (): void => {
         OrderUpdates.getInstance().subscribe({ observer: this });
-        console.log(`log: [order] order manager is ready`);
+        Logger.info({
+            message: `order manager is ready`,
+            className: this.constructor.name,
+        });
     };
 
     setTag = ({ tag }: { tag: string }) => {
@@ -44,8 +47,11 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
             return;
         }
 
-        console.log(`log: [order] received order updates:`);
-        console.log(order);
+        Logger.info({
+            message: `received order updates`,
+            className: this.constructor.name,
+            data: order,
+        });
 
         switch (order.status) {
             case 'OPEN': {
@@ -76,7 +82,10 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
                 const failedOrder = this._sent_orders.get(order.order_id);
                 this._failed_orders.set(order.order_id, failedOrder);
                 this.emit(OrderManager.EVENT.failed, failedOrder);
-                console.log(`error in order update, status: ${order.status}`);
+                Logger.error({
+                    message: `order update, status: ${order.status}`,
+                    className: this.constructor.name,
+                });
             }
         }
     }
@@ -102,14 +111,18 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
                 if (error) {
                     this.emit(OrderManager.EVENT.failed);
 
-                    console.log(`log: [error] [order manager] couldn't place the order!`);
-                    console.log(error);
-                    // this._sent_orders.set(success.order_id, _couldnt_send_orders);
+                    Logger.error({
+                        message: `couldn't place the order!`,
+                        className: this.constructor.name,
+                        data: error,
+                    });
                 } else {
                     this.emit(OrderManager.EVENT.placed);
-
-                    console.log(`log: [success] [order manager] order placed!`);
-                    console.log(success);
+                    Logger.success({
+                        message: `order placed!`,
+                        className: this.constructor.name,
+                        data: success,
+                    });
                     this._sent_orders.set(success.order_id, order);
                 }
             }
