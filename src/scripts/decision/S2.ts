@@ -40,54 +40,96 @@ export class S2 implements IStrategy {
         orderManager: OrderManager;
     }) {
         this.orderManager = orderManager;
+        this.orderManager.setTag({ tag: this.positions_filter.tag });
         this.positionController = positionController;
 
         this.throttledCheckForOrders = throttle(this.checkForOrders, 5000);
 
         // add order manager listeners
-        this.orderManager.on(OrderManager.EVENT.started, this.onOrderExecutionStarted);
-        this.orderManager.on(OrderManager.EVENT.completed, this.onOrderExecutionCompleted);
+        // this.orderManager.on(OrderManager.EVENT.OMInit, this.onOrderExecutionInit);
+        this.orderManager.on(OrderManager.EVENT.OMStarted, this.onOrderExecutionStarted);
+        // this.orderManager.on(OrderManager.EVENT.OMPlaced, this.onOrderExecutionPlaced);
+        this.orderManager.on(OrderManager.EVENT.OMCompleted, this.onOrderExecutionCompleted);
+        // order manager order status listener
+        this.orderManager.on(OrderManager.EVENT.executed, (completedorder: IPlaceStockOrder) => {
+            this.onOrderExecuted(completedorder);
+        });
     }
+
+    initialise = async (): Promise<void> => {
+        try {
+            await this.loadStocksFromDB();
+            this.subscribeStocksLoadedFromDB();
+            this.resume();
+        } catch (error) {
+            console.log(`log: [strategy] fatal error, couldn't init strategy`);
+            console.log(error);
+            process.exit();
+        }
+    };
+
+    // onOrderExecutionInit = () => {
+    //     console.log(`log: [strategy] order execution init received`);
+    //     this.pause();
+    // };
 
     onOrderExecutionStarted = () => {
         console.log(`log: [strategy] order execution started received`);
-        this.pause();
     };
+
+    // onOrderExecutionPlaced = () => {
+    //     console.log(`log: [strategy] order execution placed received`);
+    // };
 
     onOrderExecutionCompleted = () => {
         console.log(`log: [strategy] order ended started received`);
         this.resume();
     };
 
-    initialise = async (): Promise<void> => {
-        try {
-            // load stocks from database
-            this.stocks = await DB.getInstance().getStocks();
+    onOrderExecuted = async (completedOrder: IPlaceStockOrder) => {
+        const data = this.stocks.find(stock => stock.tradingsymbol === completedOrder.tradingsymbol);
 
-            // collect instrument ids of all the stocks
-            const subscribe_to_tokens: Array<number> = [];
-            this.stocks.forEach((stock: Stock) => {
-                const instrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
-                    equityTradingSymbol: <Eq_EquityTradingSymbolType>stock.tradingsymbol,
-                    segment: <SegmentType>'NSE',
-                });
+        await DB.getInstance().updateStockWithSymbol({
+            tradingSymbol: <Eq_EquityTradingSymbolType>completedOrder.tradingsymbol,
+            data: {
+                last_transaction: completedOrder.transaction_type,
+                last_action_price: completedOrder.price,
+                quantity: data.quantity + completedOrder.quantity,
+                average_price:
+                    (data.average_price * data.quantity + completedOrder.price) /
+                    (data.quantity + completedOrder.quantity),
+            },
+        });
 
-                this.equityInstruments.push(instrument);
-                subscribe_to_tokens.push(Number(instrument.instrument_token));
+        console.log(`log: [strategy] database updated!`);
+        await this.loadStocksFromDB();
+        this.resume();
+    };
+
+    loadStocksFromDB = async (): Promise<void> => {
+        this.stocks = await DB.getInstance().getStocks();
+        console.log(`log: [strategy] database loaded!`);
+        return;
+    };
+
+    subscribeStocksLoadedFromDB = (): void => {
+        // collect instrument ids of all the stocks
+        const subscribe_to_tokens: Array<number> = [];
+        this.stocks.forEach((stock: Stock) => {
+            const instrument = InstrumentStore.getInstance().getEquityInstrumentFromItsSymbol({
+                equityTradingSymbol: <Eq_EquityTradingSymbolType>stock.tradingsymbol,
+                segment: <SegmentType>'NSE',
             });
 
-            // subscribe for their price updates
-            PriceUpdates.getInstance().subscribe({
-                observer: this,
-                ticker_ids: subscribe_to_tokens,
-            });
+            this.equityInstruments.push(instrument);
+            subscribe_to_tokens.push(Number(instrument.instrument_token));
+        });
 
-            global.pause = false;
-        } catch (error) {
-            console.log(`log: [strategy] fatal error, couldn't init strategy`);
-            console.log(error);
-            process.exit();
-        }
+        // subscribe for their price updates
+        PriceUpdates.getInstance().subscribe({
+            observer: this,
+            ticker_ids: subscribe_to_tokens,
+        });
     };
 
     updateStocksFromDB = async () => {
@@ -107,42 +149,54 @@ export class S2 implements IStrategy {
     checkForOrders(_subject: PriceUpdateSender, _ticks: ZTicks): void {
         const orders: Array<IPlaceStockOrder> = [];
 
-        console.log(`checking order conditions...`);
+        console.log(`log: [strategy] checking order conditions...`);
 
         this.equityInstruments.forEach((equityInstrument: Instrument) => {
             // get data of tradingsymbol from db
             const data = this.stocks.find(stock => stock.tradingsymbol === equityInstrument.tradingsymbol);
-            // get price of tradingsymbol from db
+            // get price of current tradingsymbol from list of prices
             const tick = getTickByInstrumentToken({
                 ticks: _ticks,
                 instrument_token: Number(equityInstrument.instrument_token),
             });
 
-            console.log(`old: ${data.last_action_price} => new: ${tick.last_price}`);
+            if (!tick || !data) {
+                console.log(`log: [strategy] error while checking condition, tick or its data is not defined`);
+                return;
+            }
 
-            //decision making is done here
-            if (tick.last_price < data.last_action_price * 0.99) {
-                console.log(`price dooped 1%, buy...`);
+            console.log(
+                `log: [strategy] ${equityInstrument.tradingsymbol}: ${(
+                    ((tick.last_price - data.last_action_price) / data.last_action_price) *
+                    100
+                ).toFixed(2)}%`,
+            );
+
+            if (tick.last_price <= data.last_action_price * 0.97) {
+                console.log(`log: [strategy] price dooped 3%, buy...`);
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'BUY',
                     quantity: 1,
                     tag: this.positions_filter.tag,
+                    price: tick.last_price,
                     _function: 'DAY_STOCK',
                 });
-            } else if (tick.last_price > data.last_action_price * 1.01) {
-                console.log(`price jumped 1%, sell...`);
+            } else if (tick.last_price >= data.last_action_price * 1.03 && data.quantity >= 1) {
+                console.log(`log: [strategy] price jumped 3%, sell...`);
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'SELL',
                     quantity: 1,
                     tag: this.positions_filter.tag,
+                    price: tick.last_price,
                     _function: 'DAY_STOCK',
                 });
             }
         });
 
         if (orders.length > 0) {
+            this.pause();
             this.orderManager.sendOrders({ orders });
         }
     }

@@ -2,6 +2,9 @@
 // ********************************** PRICE UPDATES **********************************
 // ***********************************************************************************
 
+import { TradingSymbolType } from './instrument';
+import { OrderStatusType, VarietyType, ExchangeType, TransactionType, ValidityType, ProductType } from './zerodha';
+
 export type ZTicks = Array<ZTick>;
 export interface ZTick {
     instrument_token: number;
@@ -44,28 +47,39 @@ export interface Ohlc {
 // ********************************** ORDER UPDATES **********************************
 // ***********************************************************************************
 
-export type ZOrderTicks = Array<ZOrderTick>;
-
 export interface ZOrderTick {
-    order_id: string;
-    exchange_order_id: string;
-    placed_by: string;
-    status: string;
-    status_message: string;
-    tradingsymbol: string;
-    exchange: string;
-    order_type: string;
-    transaction_type: string;
-    validity: string;
-    product: string;
-    average_price: number;
-    price: number;
-    quantity: number;
-    filled_quantity: number;
+    account_id: string; // 'WY4269
     unfilled_quantity: number;
-    trigger_price: number;
-    user_id: string;
-    order_timestamp: string;
-    exchange_timestamp: string;
     checksum: string;
+    placed_by: string; // 'WY4269
+    order_id: string; //'210922201988662'
+    exchange_order_id: string;
+    parent_order_id: string | null;
+    status: OrderStatusType;
+    status_message: string | null;
+    status_message_raw: string | null;
+    order_timestamp: string; // '2021-09-22 12:05:32',
+    exchange_update_timestamp: string; // '2021-09-22 12:05:32',
+    exchange_timestamp: string; // '2021-09-22 12:05:32',
+    variety: VarietyType;
+    exchange: ExchangeType;
+    tradingsymbol: TradingSymbolType;
+    instrument_token: number;
+    order_type: OrderStatusType;
+    transaction_type: TransactionType;
+    validity: ValidityType;
+    product: ProductType;
+    quantity: number;
+    disclosed_quantity: number;
+    price: number;
+    trigger_price: number;
+    average_price: number;
+    filled_quantity: number;
+    pending_quantity: number;
+    cancelled_quantity: number;
+    market_protection: number;
+    meta: Record<any, any>;
+    tag: string; // 'piggy'
+    tags: Array<string>; //['piggy']
+    guid: string; //'24487Xxw3PxjgZW7dP'
 }

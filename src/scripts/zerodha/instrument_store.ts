@@ -209,8 +209,6 @@ export class InstrumentStore {
             return select;
         });
 
-        console.log(instruments);
-
         if (instruments.length == 1) {
             return instruments[0];
         } else {

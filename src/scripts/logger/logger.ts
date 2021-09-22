@@ -1,18 +1,24 @@
 import { Level, ColorMap, COLORS } from '../../types/logger';
 
 export class Logger {
-    private readonly className: string;
-    constructor() {
-        //what this is this?
-        this.className = this.constructor.name;
-    }
-
-    log = ({ message, data, level, trace }: { message: string; data?: any; level?: Level; trace?: boolean }) => {
+    static log = ({
+        message,
+        data,
+        level,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        level?: Level;
+        trace?: boolean;
+    }) => {
         if (level === undefined) {
             level = Level.INFO;
         }
 
-        const logline = `log: [${this.className}] [${level}] ${message}`;
+        const logline = `log: [${className}] [${level}] ${message}`;
         const color = ColorMap.get(level);
 
         if (level === Level.ERROR) {
@@ -35,5 +41,109 @@ export class Logger {
         if (trace) {
             console.trace();
         }
+    };
+
+    static info = ({
+        message,
+        data,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        trace?: boolean;
+    }) => {
+        Logger.log({
+            message,
+            data,
+            trace,
+            className,
+            level: Level.INFO,
+        });
+    };
+
+    static error = ({
+        message,
+        data,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        trace?: boolean;
+    }) => {
+        Logger.log({
+            message,
+            data,
+            trace,
+            className,
+            level: Level.ERROR,
+        });
+    };
+
+    static warn = ({
+        message,
+        data,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        trace?: boolean;
+    }) => {
+        Logger.log({
+            message,
+            data,
+            trace,
+            className,
+            level: Level.WARN,
+        });
+    };
+
+    static debug = ({
+        message,
+        data,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        trace?: boolean;
+    }) => {
+        Logger.log({
+            message,
+            data,
+            trace,
+            className,
+            level: Level.DEBUG,
+        });
+    };
+
+    static success = ({
+        message,
+        data,
+        trace,
+        className,
+    }: {
+        className: string;
+        message: string;
+        data?: any;
+        trace?: boolean;
+    }) => {
+        Logger.log({
+            message,
+            data,
+            trace,
+            className,
+            level: Level.SUCCESS,
+        });
+    };
+
+    static data = ({ data }: { data: any }): void => {
+        console.log(data);
     };
 }

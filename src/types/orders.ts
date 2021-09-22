@@ -15,13 +15,13 @@ export interface ZPlaceOrder {
     squareoff?: number;
     stoploss?: number;
     trailing_stoploss?: number;
-    price?: number;
+    price: number;
     tag: string;
 }
 
 export type ZPlaceOrders = Array<ZPlaceOrder>;
 
-export type ZPlaceStockOrder = Pick<ZPlaceOrder, 'tradingsymbol' | 'transaction_type' | 'quantity' | 'tag'>;
+export type ZPlaceStockOrder = Pick<ZPlaceOrder, 'tradingsymbol' | 'transaction_type' | 'quantity' | 'tag' | 'price'>;
 interface OrderFunctionType {
     _function: 'DAY_STOCK';
 }

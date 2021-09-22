@@ -1,7 +1,7 @@
 import { PriceUpdates } from './../ticker/price_updates';
 import { IPositionGreeks, ZDayNetPositions, ZPosition, ZPositions } from '../../types/positions';
 import { ZTicks } from '../../types/ticker';
-import { ZOrderTicks } from '../../types/ticker';
+import { ZOrderTick } from '../../types/ticker';
 import { Kite } from '../zerodha/kite';
 import { PriceUpdateReceiver, OrderUpdateReceiver, PriceUpdateSender, OrderUpdateSender } from './../ticker/interface';
 import { comparer, getDerivativeType } from '../../utils/helper';
@@ -77,9 +77,9 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
 
     // update local positions
     // update db? which db? what?
-    onOrderUpdate(_subject: OrderUpdateSender, orders: ZOrderTicks): void {
-        console.log(`log: [positions] orders updated...`);
-        console.log(orders);
+    onOrderUpdate(_subject: OrderUpdateSender, order: ZOrderTick): void {
+        console.log(`log: [positions] order updated...`);
+        console.log(order);
     }
 
     fetchDayNetPositionsAndHoldings = async (): Promise<void> => {
@@ -105,12 +105,12 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         console.log(`log: [positions] updating local positions list...`);
         this.dayNetPositions = _positions;
         console.log(`log: [positions] open positions are:`);
-        console.log(this.dayNetPositions.net);
+        // console.log(this.dayNetPositions.net);
 
         console.log(`log: [positions] updating local holdings list...`);
         this.holdings = _holdingss;
         console.log(`log: [positions] holdingss are:`);
-        console.log(this.holdings);
+        // console.log(this.holdings);
     };
 
     startPositionGreeksUpdater = (): void => {

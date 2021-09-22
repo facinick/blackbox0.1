@@ -2,17 +2,17 @@ import { DateType, MonthNameType, EquitySegmentType, StrikeType } from './zerodh
 
 //Symbols eq + indices
 export type Indices_EquityTradingSymbolType = 'NIFTY BANK' | 'NIFTY 50';
-export type Eq_EquityTradingSymbolType = 'HINDUNILVR' | 'ASIANPAINT';
+export type Eq_EquityTradingSymbolType = 'HINDUNILVR' | 'ASIANPAINT' | 'ICICIBANK' | 'HDFCBANK';
 export type EquityTradingSymbolType = Indices_EquityTradingSymbolType | Eq_EquityTradingSymbolType;
 
 //Names eq + indices
 export type Indices_EquityNameType = Indices_EquityTradingSymbolType;
-export type Eq_EquityNameType = 'HINDUSTAN UNILEVER.' | 'ASIAN PAINTS.';
+export type Eq_EquityNameType = 'HINDUSTAN UNILEVER.' | 'ASIAN PAINTS.' | 'ICICI BANK.' | 'HDFC BANK';
 export type EquityNameType = Indices_EquityNameType | Eq_EquityNameType;
 
 //Names derivative
 export type Indices_DerivativeNameType = 'BANKNIFTY' | 'NIFTY';
-export type Eq_DerivativeNameType = 'HINDUNILVR' | 'ASIANPAINT';
+export type Eq_DerivativeNameType = 'HINDUNILVR' | 'ASIANPAINT' | 'ICICIBANK' | 'HDFCBANK';
 export type DerivativeNameType = Indices_DerivativeNameType | Eq_DerivativeNameType;
 
 //Symbol derivative

@@ -94,6 +94,8 @@ export type ProductType = 'NRML' | 'MIS' | 'CNC';
 
 export type OrderType = 'NRML' | 'SL' | 'SL-M' | 'MARKET' | 'LIMIT';
 
+export type OrderStatusType = 'OPEN' | 'COMPLETE';
+
 export type ValidityType = 'DAY' | 'IOC';
 
 export type OrderIDType = string;

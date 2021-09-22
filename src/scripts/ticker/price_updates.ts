@@ -45,19 +45,19 @@ export class PriceUpdates implements PriceUpdateSender {
             const n_subscribers = this.observers_count_map.get(id);
             if (n_subscribers !== undefined) {
                 this.observers_count_map.set(id, n_subscribers + 1);
-                console.log(`log: [price updates] subscription added for: `);
-                console.log(id);
+                console.log(`log: [price updates] subscription added for: ${id}`);
             } else {
                 this.observers_count_map.set(id, 1);
                 new_subscriptions.push(id);
-                console.log(`log: [price updates] subscription added for: `);
-                console.log(id);
+                console.log(`log: [price updates] subscription added for: ${id}`);
             }
         });
 
         if (new_subscriptions.length > 0) {
-            console.log(`log: [price updates] requesting server to subscribe the following new tickers: `);
-            console.log(new_subscriptions);
+            console.log(
+                `log: [price updates] requesting server to subscribe the following new tickers: ${new_subscriptions}`,
+            );
+            // console.log(new_subscriptions);
             BaseTickerV2.getInstance().subscribe(new_subscriptions);
         }
     };
@@ -80,15 +80,13 @@ export class PriceUpdates implements PriceUpdateSender {
             if (n_subscribers === 1) {
                 this.observers_count_map.delete(id);
                 new_unsubscriptions.push(id);
-                console.log(`log: [price updates] subscription removed for: `);
-                console.log(id);
+                console.log(`log: [price updates] subscription removed for: ${id}`);
             } else {
                 if (this.observers_count_map === undefined) {
                     // do nothing...
                 } else {
                     this.observers_count_map.set(id, n_subscribers - 1);
-                    console.log(`log: [price updates] subscription removed for: `);
-                    console.log(id);
+                    console.log(`log: [price updates] subscription removed for: ${id}`);
                 }
             }
         });

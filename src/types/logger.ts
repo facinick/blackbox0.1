@@ -24,7 +24,7 @@ export enum Level {
     'DEBUG' = 'level',
     'INFO' = 'info',
     'ERROR' = 'error',
-    'SUCESS' = 'success',
+    'SUCCESS' = 'success',
     'WARN' = 'warning',
 }
 
@@ -32,6 +32,6 @@ export const ColorMap: Map<Level, string> = new Map<Level, string>([
     [Level.DEBUG, COLORS.FgBlue],
     [Level.INFO, COLORS.Reset],
     [Level.ERROR, COLORS.FgRed],
-    [Level.SUCESS, COLORS.FgGreen],
+    [Level.SUCCESS, COLORS.FgGreen],
     [Level.WARN, COLORS.FgYellow],
 ]);

@@ -1,5 +1,5 @@
 import { BaseTickerV2 } from './base_ticker_v2';
-import { ZOrderTicks } from '../../types/ticker';
+import { ZOrderTick } from '../../types/ticker';
 import { OrderUpdateReceiver, OrderUpdateSender } from './interface';
 
 export class OrderUpdates implements OrderUpdateSender {
@@ -43,15 +43,15 @@ export class OrderUpdates implements OrderUpdateSender {
         console.log(`log: [order updates] an observer unsubscribed to order updates`);
     }
 
-    private onOrderUpdate(data: ZOrderTicks) {
-        this._latest_order_update = data;
-        this.notifyOrderUpdate();
-    }
-
-    public notifyOrderUpdate(): void {
-        console.log(`log: [order updates] notifying observers for order updates...`);
+    public notifyOrderUpdate = (): void => {
+        // console.log(`log: [order updates] notifying observers for order updates...`);
         for (const observer of this.order_observers) {
             observer.onOrderUpdate(this, this._latest_order_update);
         }
-    }
+    };
+
+    private onOrderUpdate = (data: ZOrderTick) => {
+        this._latest_order_update = data;
+        this.notifyOrderUpdate();
+    };
 }

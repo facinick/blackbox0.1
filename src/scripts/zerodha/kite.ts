@@ -1,6 +1,6 @@
 import { KiteConnect } from 'kiteconnect';
 import { ZDayNetPositions } from '../../types/positions';
-import { ExchangeType, Instrument, LTPData, PlacedOrder } from '../../types/zerodha';
+import { Instrument, LTPData, PlacedOrder } from '../../types/zerodha';
 import { CalcelledOrder, ExitedOrder, VarietyType } from '../../types/zerodha';
 import { OptionsTradingSymbolType } from '../../types/instrument';
 import { success } from '../../utils/helper';
@@ -116,7 +116,7 @@ class Kite {
                 product,
                 order_type,
                 tag,
-                ...(price !== undefined && { price }),
+                price,
                 ...(validity !== undefined && { validity }),
                 ...(disclosed_quantity !== undefined && { disclosed_quantity }),
                 ...(trigger_price !== undefined && { trigger_price }),
@@ -137,6 +137,7 @@ class Kite {
         // multiplier * lot
         quantity = 1,
         tag,
+        price,
     }: // multiplier * premium
     ZPlaceStockOrder): Promise<[PlacedOrder, any]> => {
         return this.placeOrder({
@@ -155,7 +156,7 @@ class Kite {
             stoploss: undefined,
             trailing_stoploss: undefined,
             // multiplier * premium
-            price: undefined,
+            price,
             tag,
         });
     };
@@ -210,29 +211,31 @@ class Kite {
         }
     };
 
-    public getLTP = async ({
-        exchange,
-        tradingsymbol,
-    }: {
-        exchange: ExchangeType;
-        tradingsymbol: string;
-    }): Promise<[LTPData, any]> => {
-        try {
-            const ltp = await this._kc.getQuote([`${exchange}:${tradingsymbol}`]);
-            return [ltp[`${exchange}:${tradingsymbol}`], null];
-        } catch (error) {
-            return [null, error];
-        }
-    };
+    // public getLTP = async ({
+    //     exchange,
+    //     tradingsymbol,
+    // }: {
+    //     exchange: ExchangeType;
+    //     tradingsymbol: TradingSymbolType;
+    // }): Promise<[LTPData, any]> => {
+    //     try {
+    //         const ltp = await this._kc.getQuote([`${exchange}:${tradingsymbol}`]);
+    //         return [ltp[`${exchange}:${tradingsymbol}`], null];
+    //     } catch (error) {
+    //         return [null, error];
+    //     }
+    // };
 
-    public getEquityLTP = async ({ tradingsymbol }: { tradingsymbol: string }): Promise<[LTPData, any]> => {
-        try {
-            const ltp = await this._kc.getQuote([`${'NSE'}:${tradingsymbol}`]);
-            return [ltp[`${'NSE'}:${tradingsymbol}`], null];
-        } catch (error) {
-            return [null, error];
-        }
-    };
+    // public getStockLTP = async ({
+    //     tradingsymbol,
+    // }: {
+    //     tradingsymbol: TradingSymbolType;
+    // }): Promise<[LTPData, any]> => {
+    //     return this.getLTP({
+    //         exchange: 'NSE',
+    //         tradingsymbol
+    //     })
+    // };
 
     public getOptionsLTP = async ({
         tradingsymbol,

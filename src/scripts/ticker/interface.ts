@@ -1,4 +1,4 @@
-import { ZTicks, ZOrderTicks } from '../../types/ticker';
+import { ZTicks, ZOrderTick } from '../../types/ticker';
 export interface PriceUpdateSender {
     // Attach an observer to the subject.
     subscribe({ observer, ticker_ids }: { observer: PriceUpdateReceiver; ticker_ids: Array<number> }): void;
@@ -22,5 +22,5 @@ export interface OrderUpdateSender {
 
 export interface OrderUpdateReceiver {
     // Receive update from sender.
-    onOrderUpdate(subject: OrderUpdateSender, orders: ZOrderTicks): void;
+    onOrderUpdate(subject: OrderUpdateSender, order: ZOrderTick): void;
 }
