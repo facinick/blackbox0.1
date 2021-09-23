@@ -21,7 +21,7 @@ export const COLORS = {
 };
 
 export enum Level {
-    'DEBUG' = 'level',
+    'DEBUG' = 'debug',
     'INFO' = 'info',
     'ERROR' = 'error',
     'SUCCESS' = 'success',

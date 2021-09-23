@@ -4,6 +4,7 @@ import { PriceUpdateReceiver, PriceUpdateSender } from './interface';
 import difference from 'lodash.difference';
 import union from 'lodash.union';
 import intersection from 'lodash.intersection';
+import { Logger } from '../logger/logger';
 export class PriceUpdates implements PriceUpdateSender {
     private _latest_price_update: ZTicks = [];
 
@@ -45,19 +46,25 @@ export class PriceUpdates implements PriceUpdateSender {
             const n_subscribers = this.observers_count_map.get(id);
             if (n_subscribers !== undefined) {
                 this.observers_count_map.set(id, n_subscribers + 1);
-                console.log(`log: [price updates] subscription added for: ${id}`);
+                Logger.info({
+                    message: `subscription added for: ${id}`,
+                    className: this.constructor.name,
+                });
             } else {
                 this.observers_count_map.set(id, 1);
                 new_subscriptions.push(id);
-                console.log(`log: [price updates] subscription added for: ${id}`);
+                Logger.info({
+                    message: `subscription added for: ${id}`,
+                    className: this.constructor.name,
+                });
             }
         });
 
         if (new_subscriptions.length > 0) {
-            console.log(
-                `log: [price updates] requesting server to subscribe the following new tickers: ${new_subscriptions}`,
-            );
-            // console.log(new_subscriptions);
+            Logger.info({
+                message: `requesting server to subscribe the following new tickers: ${new_subscriptions}`,
+                className: this.constructor.name,
+            });
             BaseTickerV2.getInstance().subscribe(new_subscriptions);
         }
     };
@@ -80,20 +87,29 @@ export class PriceUpdates implements PriceUpdateSender {
             if (n_subscribers === 1) {
                 this.observers_count_map.delete(id);
                 new_unsubscriptions.push(id);
-                console.log(`log: [price updates] subscription removed for: ${id}`);
+                Logger.info({
+                    message: `subscription removed for: ${id}`,
+                    className: this.constructor.name,
+                });
             } else {
                 if (this.observers_count_map === undefined) {
                     // do nothing...
                 } else {
                     this.observers_count_map.set(id, n_subscribers - 1);
-                    console.log(`log: [price updates] subscription removed for: ${id}`);
+                    Logger.info({
+                        message: `subscription removed for: ${id}`,
+                        className: this.constructor.name,
+                    });
                 }
             }
         });
 
         if (new_unsubscriptions.length > 0) {
-            console.log(`log: [price updates] requesting server to unsubscribe the following new tickers: `);
-            console.log(new_unsubscriptions);
+            Logger.info({
+                message: `requesting server to unsubscribe the following new tickers:`,
+                className: this.constructor.name,
+                data: new_unsubscriptions,
+            });
             BaseTickerV2.getInstance().unsubscribe(new_unsubscriptions);
         }
     };

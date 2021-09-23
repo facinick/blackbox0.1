@@ -124,6 +124,9 @@ export interface PlacedOrder {
 export interface CalcelledOrder {
     order_id: OrderIDType;
 }
+export interface ModifiedOrder {
+    order_id: OrderIDType;
+}
 
 export interface ExitedOrder {
     order_id: OrderIDType;

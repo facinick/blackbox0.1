@@ -8,6 +8,7 @@ import { comparer, getDerivativeType } from '../../utils/helper';
 import FEATURES from '../../settings/features';
 import { IPositionFilter } from '../decision/interface';
 import { ZHoldings } from '../../types/holdings';
+import { Logger } from '../logger/logger';
 // import { DerivativeTradingSymbolType } from '../../types/zerodha';
 // import { EquityTradingSymbolType } from '../../types/nse_index';
 export class PositionController implements PriceUpdateReceiver, OrderUpdateReceiver {
@@ -34,14 +35,20 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     };
 
     initialise = async (): Promise<void> => {
-        console.log(`log: [positions] initialised positions controller`);
+        Logger.info({
+            message: `initialised positions controller`,
+            className: this.constructor.name,
+        });
         await this.fetchDayNetPositionsAndHoldings();
 
         if (FEATURES.OPTIONS_GREEKS) {
             this.startPositionGreeksUpdater();
         }
 
-        console.log(`log: [positions] position controller is ready`);
+        Logger.info({
+            message: `position controller is ready`,
+            className: this.constructor.name,
+        });
         // fetch delta values of all the positions... from external source!
     };
 
@@ -53,16 +60,22 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
         const subscribeList: ZPositions = newNetPositions.filter(comparer(oldNetPositions));
 
         // unsubscribe to closed positions tickers
-        console.log(`log: [positions] initiating unsubscribe for these positions`);
-        console.log(unsubscribeList);
+        Logger.warn({
+            message: `initiating unsubscribe for these positions`,
+            className: this.constructor.name,
+            data: unsubscribeList,
+        });
 
         const unsubscribeListIds = unsubscribeList.map((position: ZPosition) => position.instrument_token);
 
         PriceUpdates.getInstance().unsubscribe({ observer: this, ticker_ids: unsubscribeListIds });
 
         // subscribe to new positions tickers
-        console.log(`log: [positions] initiating subscribe for these positions`);
-        console.log(subscribeList);
+        Logger.warn({
+            message: `initiating subscribe for these positions`,
+            className: this.constructor.name,
+            data: subscribeList,
+        });
 
         const subscribeListIds = subscribeList.map((position: ZPosition) => position.instrument_token);
 
@@ -70,26 +83,30 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
     }
 
     // update local position prices
-    onPriceUpdate(_subject: PriceUpdateSender, ticks: ZTicks): void {
-        console.log(`log: [positions] price updated...`);
-        console.log(ticks);
+    onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
+        // do nothing for now
     }
 
     // update local positions
     // update db? which db? what?
-    onOrderUpdate(_subject: OrderUpdateSender, order: ZOrderTick): void {
-        console.log(`log: [positions] order updated...`);
-        console.log(order);
+    onOrderUpdate(_subject: OrderUpdateSender, _order: ZOrderTick): void {
+        // do nothing for now
     }
 
     fetchDayNetPositionsAndHoldings = async (): Promise<void> => {
-        console.log(`log: [positions] fetching all positions from server...`);
+        Logger.info({
+            message: `fetching all positions from server...`,
+            className: this.constructor.name,
+        });
         const [_positions, get_positions_error] = await Kite.getInstance().getPositions();
         if (get_positions_error) {
             throw new Error(get_positions_error);
         }
 
-        console.log(`log: [positions] fetching all holdings from server...`);
+        Logger.info({
+            message: `fetching all holdings from server...`,
+            className: this.constructor.name,
+        });
         const [_holdingss, get_holdings_errorr] = await Kite.getInstance().getHoldings();
         if (get_holdings_errorr) {
             throw new Error(get_holdings_errorr);
@@ -102,15 +119,21 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
 
         // await wait_x_ms({ milliseconds: 2000 });
 
-        console.log(`log: [positions] updating local positions list...`);
         this.dayNetPositions = _positions;
-        console.log(`log: [positions] open positions are:`);
+        // console.log(`log: [positions] open positions are:`);
         // console.log(this.dayNetPositions.net);
+        Logger.info({
+            message: `updating local positions list...`,
+            className: this.constructor.name,
+        });
 
-        console.log(`log: [positions] updating local holdings list...`);
         this.holdings = _holdingss;
-        console.log(`log: [positions] holdingss are:`);
+        // console.log(`log: [positions] holdingss are:`);
         // console.log(this.holdings);
+        Logger.info({
+            message: `updating local holdings list...`,
+            className: this.constructor.name,
+        });
     };
 
     startPositionGreeksUpdater = (): void => {
@@ -177,7 +200,10 @@ export class PositionController implements PriceUpdateReceiver, OrderUpdateRecei
 
                 return position;
             });
-            console.log(`log: [positions] positions greeks updated`);
+            Logger.info({
+                message: `positions greeks updated`,
+                className: this.constructor.name,
+            });
         }
     };
 

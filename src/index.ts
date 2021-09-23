@@ -12,6 +12,7 @@ const main = async (): Promise<void> => {
     Logger.info({
         message: `starting main app`,
         className: 'main',
+        notify: true,
     });
     // create kite instance
     Kite.getInstance().init({ api_key: ZerodhaConfig.API_KEY });

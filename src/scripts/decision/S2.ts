@@ -14,7 +14,10 @@ import { DB } from '../../db/prisma';
 import { throttle } from 'throttle-typescript';
 import { IPlaceStockOrder } from '../../types/orders';
 import { Logger } from '../logger/logger';
+import { deltaPercentage, average } from '../../utils/numbers';
 export class S2 implements IStrategy {
+    private readonly ORDER_CHECK_INTERVAL_MS = 60000;
+
     equityInstruments: Array<Instrument> = [];
 
     positionController: PositionController;
@@ -43,7 +46,7 @@ export class S2 implements IStrategy {
         this.orderManager.setTag({ tag: this.positions_filter.tag });
         this.positionController = positionController;
 
-        this.throttledCheckForOrders = throttle(this.checkForOrders, 5000);
+        this.throttledCheckForOrders = throttle(this.checkForOrders, this.ORDER_CHECK_INTERVAL_MS);
 
         // add order manager listeners
         // this.orderManager.on(OrderManager.EVENT.OMInit, this.onOrderExecutionInit);
@@ -91,6 +94,7 @@ export class S2 implements IStrategy {
                 average_price:
                     (data.average_price * data.quantity + completedOrder.price) /
                     (data.quantity + completedOrder.quantity),
+                balance: data.balance - completedOrder.price,
             },
         });
 
@@ -163,26 +167,40 @@ export class S2 implements IStrategy {
             });
 
             if (!tick || !data) {
-                Logger.warn({
-                    message: `error while checking condition, tick or its data is not defined`,
-                    className: this.constructor.name,
-                });
+                // Logger.warn({
+                //     message: `error while checking condition, tick or its data is not defined`,
+                //     className: this.constructor.name,
+                // });
                 return;
             }
 
-            const deltaPercentage = Number(
-                (((tick.last_price - data.last_action_price) / data.last_action_price) * 100).toFixed(2),
-            );
+            const buyPrice = tick.depth?.buy?.[0]?.price;
+            const sellPrice = tick.depth?.sell?.[0]?.price;
+            let avgPrice;
+
+            if (buyPrice && sellPrice) {
+                avgPrice = average([buyPrice, sellPrice]);
+            }
+
+            const change = deltaPercentage({
+                from: data.last_action_price,
+                to: tick.last_price,
+            });
+
+            const canBuy = data.balance >= tick.last_price;
+            const canSell = data.quantity >= 1;
 
             Logger.debug({
-                message: `${equityInstrument.tradingsymbol}: ${deltaPercentage}`,
+                message: `${equityInstrument.tradingsymbol}: ${change}        (${tick.last_price}:${avgPrice})`,
                 className: this.constructor.name,
             });
 
-            if (tick.last_price <= data.last_action_price * 0.97) {
+            // check balance too
+            if (change <= -3 && canBuy) {
                 Logger.info({
                     message: `price dooped 3%, buy...`,
                     className: this.constructor.name,
+                    notify: true,
                 });
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
@@ -192,10 +210,11 @@ export class S2 implements IStrategy {
                     price: tick.last_price,
                     _function: 'DAY_STOCK',
                 });
-            } else if (tick.last_price >= data.last_action_price * 1.03 && data.quantity >= 1) {
+            } else if (change >= 3 && canSell) {
                 Logger.info({
                     message: `price jumped 3%, sell...`,
                     className: this.constructor.name,
+                    notify: true,
                 });
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,

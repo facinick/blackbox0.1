@@ -12,14 +12,10 @@ export class DB {
         return DB._instance;
     }
 
-    getPiggybankBalance = async () => {
-        await this._prisma.piggyBank.findMany()?.[0]?.balance;
-    };
-
     updatePiggybankBalance = async ({ balance }: { balance: number }) => {
-        await this._prisma.piggyBank.update({
+        await this._prisma.strategy.update({
             where: {
-                id: 1,
+                name: 'piggy',
             },
             data: {
                 balance,
@@ -27,11 +23,13 @@ export class DB {
         });
     };
 
+    // todo: take stocks from piggy strategy only
     getStocks = async (): Promise<Array<Stock>> => {
         const stocks: Array<Stock> = await this._prisma.stock.findMany();
         return stocks;
     };
 
+    // todo: take stocks from piggy strategy only
     getStockWithSymbol = async ({
         tradingSymbol,
     }: {
@@ -45,6 +43,7 @@ export class DB {
         return stock;
     };
 
+    // todo: take stocks from piggy strategy only
     updateStockWithSymbol = async ({
         tradingSymbol,
         data,

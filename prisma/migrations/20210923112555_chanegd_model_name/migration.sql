@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Strategy" ALTER COLUMN "id" SET DEFAULT 1,
+ALTER COLUMN "id" DROP DEFAULT;
+DROP SEQUENCE "Strategy_id_seq";

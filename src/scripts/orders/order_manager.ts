@@ -17,7 +17,13 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
         executed: 'executed', // this
         timedout: 'timedout', // this
     };
-    private PENDING_TIMEOUT_MS = 30000;
+
+    // for pending orders ******************
+    private MAX_RETRY_ATTEMPTS = 3; // modify only max 3 times
+    private PENDING_MODIFY_INTERVAL_MS = 10000; // every 10 seconds modify order
+    private PENDING_TIMEOUT_MS = 50000; // in 50 seconds cancel pending orders
+    private PENDING_MAX_DEVIATION = 0.005; // modify only upto max 0.5% fro original order price
+    // *************************************
 
     private _all_orders: Array<IPlaceStockOrder> = [];
 
@@ -132,15 +138,19 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
     reset = (): void => {
         this._all_orders = [];
         this._sent_orders.clear();
-        // ***************************** //
         this._open_orders.clear();
         this._completed_orders.clear();
         this._failed_orders.clear();
     };
 
-    dumy = () => {
+    // remove this **********************************
+    dumy = (): void => {
         console.log(this.PENDING_TIMEOUT_MS);
+        console.log(this.PENDING_MAX_DEVIATION);
+        console.log(this.MAX_RETRY_ATTEMPTS);
+        console.log(this.PENDING_MODIFY_INTERVAL_MS);
         console.log(this._all_orders);
         console.log(this._completed_orders);
     };
+    // **********************************************
 }

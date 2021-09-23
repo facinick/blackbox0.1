@@ -1,4 +1,5 @@
 import { KiteTicker } from 'kiteconnect';
+import { Logger } from '../logger/logger';
 
 // connect -  when connection is successfully established.
 // ticks - when ticks are available (Arrays of `ticks` object as the first argument).
@@ -22,7 +23,11 @@ export class BaseTickerV2 {
 
     onError(_onError: (error: any) => void): void {
         this._ticker.on('error', error => {
-            console.log(`log: [base ticker] error`);
+            Logger.error({
+                message: `error`,
+                className: this.constructor.name,
+                data: error,
+            });
             _onError(error);
         });
     }
@@ -37,12 +42,18 @@ export class BaseTickerV2 {
 
     onOrderUpdate(onOrderUpdate: (update: any) => void): void {
         this._ticker.on('order_update', onOrderUpdate);
-        console.log(`log: [base ticker] order ticker registered`);
+        Logger.info({
+            message: `order ticker registered`,
+            className: this.constructor.name,
+        });
     }
 
     onTicks(onTicks: (ticks: any) => void): void {
         this._ticker.on('ticks', onTicks);
-        console.log(`log: [base ticker] price ticker registered`);
+        Logger.info({
+            message: `price ticker registered`,
+            className: this.constructor.name,
+        });
     }
 
     autoReconnect(enable: boolean, max_retry = 50, max_delay = 50) {

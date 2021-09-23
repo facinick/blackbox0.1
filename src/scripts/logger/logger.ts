@@ -1,15 +1,21 @@
 import { Level, ColorMap, COLORS } from '../../types/logger';
-
+import notifier from 'node-notifier';
 export class Logger {
+    private constructor() {
+        // do nothing, just marked private
+    }
+
     static log = ({
         message,
         data,
+        notify,
         level,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         level?: Level;
         trace?: boolean;
@@ -36,10 +42,14 @@ export class Logger {
         }
 
         if (data !== undefined) {
-            this.data({ data });
+            Logger.data({ data });
         }
-        if (trace) {
-            console.trace();
+
+        if (notify) {
+            Logger.notify({
+                title: `Blackbox Notification`,
+                message,
+            });
         }
     };
 
@@ -47,19 +57,30 @@ export class Logger {
         console.log(data);
     };
 
+    static notify = ({ title, message }: { title: string; message: string }): void => {
+        notifier.notify({
+            title,
+            message,
+            sound: true,
+        });
+    };
+
     static info = ({
         message,
+        notify,
         data,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         trace?: boolean;
     }) => {
         Logger.log({
             message,
+            notify,
             data,
             trace,
             className,
@@ -69,17 +90,20 @@ export class Logger {
 
     static error = ({
         message,
+        notify,
         data,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         trace?: boolean;
     }) => {
         Logger.log({
             message,
+            notify,
             data,
             trace,
             className,
@@ -89,17 +113,20 @@ export class Logger {
 
     static warn = ({
         message,
+        notify,
         data,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         trace?: boolean;
     }) => {
         Logger.log({
             message,
+            notify,
             data,
             trace,
             className,
@@ -109,17 +136,20 @@ export class Logger {
 
     static debug = ({
         message,
+        notify,
         data,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         trace?: boolean;
     }) => {
         Logger.log({
             message,
+            notify,
             data,
             trace,
             className,
@@ -129,17 +159,20 @@ export class Logger {
 
     static success = ({
         message,
+        notify,
         data,
         trace,
         className,
     }: {
         className: string;
         message: string;
+        notify?: boolean;
         data?: any;
         trace?: boolean;
     }) => {
         Logger.log({
             message,
+            notify,
             data,
             trace,
             className,
