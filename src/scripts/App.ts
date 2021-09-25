@@ -1,6 +1,6 @@
 import { PositionController } from './positions/position_controller';
 import { OrderManager } from './orders/order_manager';
-import { S2 } from './decision/s2';
+import { Piggy } from './decision/piggy';
 import { IStrategy } from './decision/interface';
 export class App {
     orderManager: OrderManager;
@@ -14,7 +14,7 @@ export class App {
         this.positionController = new PositionController();
         await this.positionController.initialise();
 
-        this.decisionMaker = new S2({
+        this.decisionMaker = new Piggy({
             positionController: this.positionController,
             orderManager: this.orderManager,
         });

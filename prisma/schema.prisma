@@ -17,18 +17,21 @@ enum Transaction {
 }
 
 model Stock {
-  id                    Int         @id @default(autoincrement())
-  tradingsymbol         String      @unique
-  quantity              Int         @default(0)
-  average_price         Float       @default(0)
-  last_action_price     Float       @default(0)
-  last_transaction      Transaction @default(INIT)
-  last_action_timestamp DateTime    @updatedAt
-  balance               Float       @default(0)
+  id                        Int         @id @default(autoincrement())
+  balance                   Float       @default(0)
+  tradingsymbol             String      @unique
+  quantity                  Int         @default(0)
+  average_price             Float       @default(0)
+  // previous transaction information
+  last_action_transaction   Transaction @default(INIT)
+  last_action_price         Float       @default(0)
+  last_action_quantity      Int         @default(0)
+  last_action_timestamp     DateTime    @updatedAt
+  last_action_reason        String      @default("")
   // foreign key
-  strategyId           Int         @default(1)
+  strategyId                Int         @default(1)
   // prisma internal relation
-  strategy             Strategy   @relation(fields: [strategyId], references: [id])
+  strategy                  Strategy   @relation(fields: [strategyId], references: [id])
 }
 
 model Strategy {

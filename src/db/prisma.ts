@@ -1,4 +1,5 @@
 import { PrismaClient, Stock } from '@prisma/client';
+import { IStrategy } from '../scripts/decision/interface';
 import { Eq_EquityTradingSymbolType } from '../types/instrument';
 export class DB {
     private static _instance: DB;
@@ -12,51 +13,63 @@ export class DB {
         return DB._instance;
     }
 
-    updatePiggybankBalance = async ({ balance }: { balance: number }) => {
-        await this._prisma.strategy.update({
+    getStocks = async ({ strategy }: { strategy: IStrategy }): Promise<Array<Stock>> => {
+        const _strategy: {
+            stocks: Stock[];
+        } = await this._prisma.strategy.findUnique({
             where: {
-                name: 'piggy',
+                name: strategy.constructor.name,
             },
-            data: {
-                balance,
+            select: {
+                stocks: true,
             },
         });
-    };
 
-    // todo: take stocks from piggy strategy only
-    getStocks = async (): Promise<Array<Stock>> => {
-        const stocks: Array<Stock> = await this._prisma.stock.findMany();
-        return stocks;
-    };
-
-    // todo: take stocks from piggy strategy only
-    getStockWithSymbol = async ({
-        tradingSymbol,
-    }: {
-        tradingSymbol: Eq_EquityTradingSymbolType;
-    }): Promise<Stock | null> => {
-        const stock: Stock = await this._prisma.stock.findUnique({
-            where: {
-                tradingsymbol: tradingSymbol,
-            },
-        });
-        return stock;
+        return _strategy.stocks;
     };
 
     // todo: take stocks from piggy strategy only
     updateStockWithSymbol = async ({
+        strategy,
         tradingSymbol,
         data,
     }: {
+        strategy: IStrategy;
         tradingSymbol: Eq_EquityTradingSymbolType;
         data: Partial<Stock>;
-    }): Promise<Stock> => {
-        const stock: Stock = await this._prisma.stock.update({
+    }): Promise<void> => {
+        await this._prisma.strategy.update({
             where: {
-                tradingsymbol: tradingSymbol,
+                name: strategy.constructor.name,
             },
-            data: data,
+            data: {
+                stocks: {
+                    update: {
+                        where: {
+                            tradingsymbol: tradingSymbol,
+                        },
+                        data: data,
+                    },
+                },
+            },
         });
-        return stock;
+
+        return;
     };
+
+    // todo: take stocks from piggy strategy only
+    // getStockWithSymbol = async ({
+    //     strategy,
+    //     tradingSymbol,
+    // }: {
+    //     strategy: IStrategy;
+    //     tradingSymbol: Eq_EquityTradingSymbolType;
+    // }): Promise<Stock | null> => {
+    //     const stock: Stock = await this._prisma.stock.findUnique({
+    //         where: {
+    //             tradingsymbol: tradingSymbol,
+    //         },
+    //     });
+    //     return stock;
+    // };
 }

@@ -15,7 +15,7 @@ import { throttle } from 'throttle-typescript';
 import { IPlaceStockOrder } from '../../types/orders';
 import { Logger } from '../logger/logger';
 import { deltaPercentage, average } from '../../utils/numbers';
-export class S2 implements IStrategy {
+export class Piggy implements IStrategy {
     private readonly ORDER_CHECK_INTERVAL_MS = 60000;
 
     equityInstruments: Array<Instrument> = [];
@@ -86,10 +86,12 @@ export class S2 implements IStrategy {
         const data = this.stocks.find(stock => stock.tradingsymbol === completedOrder.tradingsymbol);
 
         await DB.getInstance().updateStockWithSymbol({
+            strategy: this,
             tradingSymbol: <Eq_EquityTradingSymbolType>completedOrder.tradingsymbol,
             data: {
-                last_transaction: completedOrder.transaction_type,
+                last_action_transaction: completedOrder.transaction_type,
                 last_action_price: completedOrder.price,
+                last_action_quantity: completedOrder.quantity,
                 quantity: data.quantity + completedOrder.quantity,
                 average_price:
                     (data.average_price * data.quantity + completedOrder.price) /
@@ -103,11 +105,10 @@ export class S2 implements IStrategy {
             className: this.constructor.name,
         });
         await this.loadStocksFromDB();
-        this.resume();
     };
 
     loadStocksFromDB = async (): Promise<void> => {
-        this.stocks = await DB.getInstance().getStocks();
+        this.stocks = await DB.getInstance().getStocks({ strategy: this });
         Logger.info({
             message: `database loaded!`,
             className: this.constructor.name,
@@ -136,12 +137,12 @@ export class S2 implements IStrategy {
     };
 
     updateStocksFromDB = async () => {
-        this.stocks = await DB.getInstance().getStocks();
+        this.stocks = await DB.getInstance().getStocks({ strategy: this });
     };
 
-    updateStocksToDB = async () => {
-        this.stocks = await DB.getInstance().getStocks();
-    };
+    // updateStocksToDB = async () => {
+    //     this.stocks = await DB.getInstance().getStocks({strategy:this});
+    // };
 
     onPriceUpdate(_subject: PriceUpdateSender, _ticks: ZTicks): void {
         if (global.pause === false) {
