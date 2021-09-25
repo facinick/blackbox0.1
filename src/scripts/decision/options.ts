@@ -10,7 +10,7 @@ import { ZPositions } from '../../types/positions';
 import { getTickByInstrumentToken } from '../../utils/helper';
 import { Instrument } from '../../types/zerodha';
 import { IStrategy } from './interface';
-export class S1 implements IStrategy {
+export class Options implements IStrategy {
     INDEX_EQ_TRADING_SYMBOL: Indices_EquityTradingSymbolType = 'NIFTY 50';
     INDEX_DERIVATIVE_NAME: Indices_DerivativeNameType = 'NIFTY';
     UNDERLYING_EQ_SEGMENT: SegmentType = 'INDICES';

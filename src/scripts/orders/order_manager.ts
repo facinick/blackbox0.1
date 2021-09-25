@@ -122,6 +122,13 @@ export class OrderManager extends EventEmitter implements OrderUpdateReceiver {
                         className: this.constructor.name,
                         data: error,
                     });
+
+                    // {
+                    //     status: 'error',
+                    //     message: '1 quantity need to be authorised at CDSL (your demat depository) to complete this order. [Learn more](https://zrd.sh/cdsl-tpin)',
+                    //     data: { can_skip: false },
+                    //     error_type: 'InputException'
+                    //   }
                 } else {
                     this.emit(OrderManager.EVENT.placed);
                     Logger.success({
