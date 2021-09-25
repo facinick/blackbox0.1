@@ -188,8 +188,10 @@ export class Piggy implements IStrategy {
                 to: tick.last_price,
             });
 
-            const canBuy = data.balance >= tick.last_price;
-            const canSell = data.quantity >= 1;
+            const buyQuantity = 2;
+            const sellQuantity = 1;
+            const canBuy = data.balance >= tick.last_price * buyQuantity;
+            const canSell = data.quantity >= sellQuantity;
 
             Logger.debug({
                 message: `${equityInstrument.tradingsymbol}: ${change}        (${tick.last_price}:${avgPrice})`,
@@ -206,7 +208,7 @@ export class Piggy implements IStrategy {
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'BUY',
-                    quantity: 1,
+                    quantity: buyQuantity,
                     tag: this.positions_filter.tag,
                     price: tick.last_price,
                     _function: 'DAY_STOCK',
@@ -220,7 +222,7 @@ export class Piggy implements IStrategy {
                 orders.push({
                     tradingsymbol: equityInstrument.tradingsymbol,
                     transaction_type: 'SELL',
-                    quantity: 1,
+                    quantity: sellQuantity,
                     tag: this.positions_filter.tag,
                     price: tick.last_price,
                     _function: 'DAY_STOCK',
