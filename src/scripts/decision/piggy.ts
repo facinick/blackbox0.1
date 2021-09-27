@@ -96,7 +96,7 @@ export class Piggy implements IStrategy {
                 average_price:
                     (data.average_price * data.quantity + completedOrder.price) /
                     (data.quantity + completedOrder.quantity),
-                balance: data.balance - completedOrder.price,
+                balance: data.balance - completedOrder.price * completedOrder.quantity,
             },
         });
 
