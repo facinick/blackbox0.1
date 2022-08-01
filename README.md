@@ -1,3 +1,6 @@
+# FNO Trading Bot for Zerorha
+
+> Readme is under development
 
 ### Blackbox TODO
 
